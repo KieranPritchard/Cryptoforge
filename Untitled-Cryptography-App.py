@@ -25,6 +25,13 @@ class key_management:
         else:
             print("Unsecure key size.")
 
+    def create_ChaCha20_key(bit_size):
+        if bit_size == 256:
+            new_ChaCha20_key = os.urandom(256)
+            return new_ChaCha20_key
+        else:
+            print("Incorrect key length.")
+
 class AEScipher:
     def __init__(self,bits,mode):
         self.bits = bits
