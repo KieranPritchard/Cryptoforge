@@ -6,8 +6,13 @@ class AEScipher:
         self.mode = mode
 
 class ChaCha20:
-    # Add here the functions later on
+    def __init__(self):
+        pass
 
 class Blowfish:
     def __init__(self,mode):
         self.mode = mode
+
+class RSA:
+    def __init__(self):
+        pass
