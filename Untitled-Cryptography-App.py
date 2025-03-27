@@ -16,3 +16,15 @@ class Blowfish:
 class RSA:
     def __init__(self):
         pass
+
+class SHA_2:
+    def __init__(self):
+        pass
+
+class SHA_3:
+    def __init__(self):
+        pass
+
+class Blake2:
+    def __init__(self):
+        pass
