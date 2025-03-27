@@ -1,5 +1,9 @@
 import cryptography
 
+class key_management:
+    def __init__(self):
+        pass
+
 class AEScipher:
     def __init__(self,bits,mode):
         self.bits = bits
