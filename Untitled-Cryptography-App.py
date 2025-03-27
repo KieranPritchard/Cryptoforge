@@ -18,6 +18,13 @@ class key_management:
         else:
             print("Incorrect key size.")
 
+    def create_blowfish_key(bit_size):
+        if bit_size == 448:
+            new_blowfish_key = os.urandom(448)
+            return new_blowfish_key
+        else:
+            print("Unsecure key size.")
+
 class AEScipher:
     def __init__(self,bits,mode):
         self.bits = bits
