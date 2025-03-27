@@ -1,8 +1,22 @@
 import cryptography
+import os
 
 class key_management:
     def __init__(self):
         pass
+
+    def create_aes_key(bit_size):
+        if bit_size == 128:
+            new_aes_key = os.urandom(128)
+            return new_aes_key
+        elif bit_size == 192:
+            new_aes_key = os.urandom(192)
+            return new_aes_key
+        elif bit_size == 256:
+            new_aes_key = os.urandom(256)
+            return new_aes_key
+        else:
+            print("Incorrect key size.")
 
 class AEScipher:
     def __init__(self,bits,mode):
