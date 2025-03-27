@@ -7,3 +7,7 @@ class AEScipher:
 
 class ChaCha20:
     # Add here the functions later on
+
+class Blowfish:
+    def __init__(self,mode):
+        self.mode = mode
