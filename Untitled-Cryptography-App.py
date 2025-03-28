@@ -1,4 +1,4 @@
-import cryptography
+from cryptography import *
 import os
 
 class key_management:
@@ -31,6 +31,22 @@ class key_management:
             return new_ChaCha20_key
         else:
             print("Incorrect key length.")
+
+    def create_rsa_private_key():
+        rsa_private_key = rsa.generate_private_key(
+            public_exponent=65537
+            key_size=2048,
+            backend=default_backend()
+        )
+
+        # Serialise private key
+        rsa_private_pem = rsa_private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption()
+        )
+    
+        return rsa_private_key, rsa_private_pem
 
 class AEScipher:
     def __init__(self,bits,mode):
