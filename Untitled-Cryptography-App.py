@@ -1,4 +1,11 @@
-from cryptography import *
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives import serialization
 import os
 
 class key_management:
@@ -34,8 +41,8 @@ class key_management:
 
     def create_rsa_private_key():
         rsa_private_key = rsa.generate_private_key(
-            public_exponent=65537
-            key_size=2048,
+            public_exponent=65537, 
+            key_size=2048, 
             backend=default_backend()
         )
 
