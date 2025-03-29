@@ -54,6 +54,18 @@ class key_management:
         )
     
         return rsa_private_key, rsa_private_pem
+    
+    def create_rsa_public_key(rsa_private_key):
+        rsa_public_key = rsa_private_key.public_key()
+
+        # Serialise public key
+        rsa_public_pem = rsa_public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+
+        return rsa_public_key, rsa_public_pem
+
 
 class AEScipher:
     def __init__(self,bits,mode):
