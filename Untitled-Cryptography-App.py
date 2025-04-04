@@ -65,7 +65,26 @@ class key_management:
         )
 
         return rsa_public_key, rsa_public_pem
+    
+    def create_ecc_private_key():
+        ecc_private_key = ec.generate_private_key(ec.SECP256R1)
 
+        ecc_private_pem = ecc_private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.TraditionalOpenSSL,
+            encryption_algorithm=serialization.NoEncryption()
+        )
+        return ecc_private_key, ecc_private_pem
+    
+    def create_ecc_public_key(ecc_private_key):
+        ecc_public_key = ecc_private_key.public_key()
+
+        # Serialize the public key to PEM format
+        ecc_public_pem = ecc_public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+        return ecc_public_key, ecc_public_pem
 
 class AEScipher:
     def __init__(self,bits,mode):
