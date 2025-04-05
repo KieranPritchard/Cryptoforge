@@ -146,7 +146,7 @@ class AES:
         CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
         CBC_mode_decryptor = CBC_mode_cipher.decryptor()
         plaintext = CBC_mode_decryptor.update(ciphertext) + CBC_mode_decryptor.finalize()
-        return ciphertext
+        return plaintext
 
 class ChaCha20:
     def __init__(self):
