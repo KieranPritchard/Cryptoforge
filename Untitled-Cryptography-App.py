@@ -31,6 +31,13 @@ class key_management:
         for key in os.listdir(key_folder):
             print(key)
 
+    def rename_key(key_folder,key_name, new_key_name):
+        for key in os.listdir(key_folder):
+            if key_name == key:
+                os.rename(key,new_key_name)
+            else:
+                continue
+
     # Key creation for the different ciphers
     def create_aes_key(bit_size):
         if bit_size == 128:
