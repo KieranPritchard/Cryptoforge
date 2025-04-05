@@ -12,6 +12,19 @@ class key_management:
     def __init__(self):
         pass
     # Create, Read, Update, and Delete Functionality
+    def save_key(key_name, key_to_save, type_of_key):
+        if type_of_key == "private":
+            key_file = open(f"{key_name}.pem","w")
+            key_file.write(key_to_save)
+            key_file.close()
+        elif type_of_key == "public":
+            key_file = open(f"{key_name}.pem","w")
+            key_file.write(key_to_save)
+            key_file.close()
+        elif type_of_key == "symetric":
+            key_file = open(f"{key_name}.key","w")
+            key_file.write(key_to_save)
+            key_file.close()
 
     # Key creation for the different ciphers
     def create_aes_key(bit_size):
