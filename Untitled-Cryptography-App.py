@@ -122,9 +122,19 @@ class key_management:
         )
         return ecc_public_key, ecc_public_pem
 
-class AEScipher:
+class AES:
     def __init__(self):
         pass
+
+    def padding(data):
+        padder = padding.PKCS7(128).padder()
+        padded_data = padder.update(data) + padder.finalize()
+        return padded_data
+    
+    def unpadder(data):
+        unpadder = padding.PKCS7(128).unpadder()
+        plaintext = unpadder.update(data) + unpadder.finalize()
+        return plaintext.decode()
 
 class ChaCha20:
     def __init__(self):
