@@ -11,7 +11,9 @@ import os
 class key_management:
     def __init__(self):
         pass
+    # Create, Read, Update, and Delete Functionality
 
+    # Key creation for the different ciphers
     def create_aes_key(bit_size):
         if bit_size == 128:
             new_aes_key = os.urandom(128)
