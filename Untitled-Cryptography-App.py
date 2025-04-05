@@ -135,6 +135,12 @@ class AES:
         unpadder = padding.PKCS7(128).unpadder()
         plaintext = unpadder.update(data) + unpadder.finalize()
         return plaintext.decode()
+    
+    def CBC_mode_encryption(padded_plaintext, key, iv):
+        CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+        CBC_mode_encryptor = CBC_mode_cipher.encryptor()
+        cipher_text = CBC_mode_encryptor.update(padded_plaintext) + CBC_mode_encryptor.finalize()
+        return cipher_text
 
 class ChaCha20:
     def __init__(self):
