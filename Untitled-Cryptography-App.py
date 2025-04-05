@@ -136,11 +136,17 @@ class AES:
         plaintext = unpadder.update(data) + unpadder.finalize()
         return plaintext.decode()
     
-    def CBC_mode_encryption(padded_plaintext, key, iv):
+    def CBC_mode_plaintext_encryption(padded_plaintext, key, iv):
         CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
         CBC_mode_encryptor = CBC_mode_cipher.encryptor()
-        cipher_text = CBC_mode_encryptor.update(padded_plaintext) + CBC_mode_encryptor.finalize()
-        return cipher_text
+        ciphertext = CBC_mode_encryptor.update(padded_plaintext) + CBC_mode_encryptor.finalize()
+        return ciphertext
+    
+    def CBC_mode_ciphertext_decryption(ciphertext,key,iv):
+        CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+        CBC_mode_decryptor = CBC_mode_cipher.decryptor()
+        plaintext = CBC_mode_decryptor.update(ciphertext) + CBC_mode_decryptor.finalize()
+        return ciphertext
 
 class ChaCha20:
     def __init__(self):
