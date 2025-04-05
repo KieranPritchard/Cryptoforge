@@ -119,9 +119,8 @@ class key_management:
         return ecc_public_key, ecc_public_pem
 
 class AEScipher:
-    def __init__(self,bits,mode):
-        self.bits = bits
-        self.mode = mode
+    def __init__(self):
+        pass
 
 class ChaCha20:
     def __init__(self):
