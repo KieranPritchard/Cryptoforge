@@ -44,6 +44,10 @@ class key_management:
                 os.remove(key_to_delete)
 
     # Key creation for the different ciphers
+    def create_iv():
+        new_iv = os.urandom(16)
+        return new_iv
+    
     def create_aes_key(bit_size):
         if bit_size == 128:
             new_aes_key = os.urandom(128)
