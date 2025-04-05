@@ -9,8 +9,9 @@ from cryptography.hazmat.primitives import serialization
 import os
 
 class key_management:
-    def __init__(self):
-        pass
+    def __init__(self, key_folder):
+        self.key_folder
+
     # Create, Read, Update, and Delete Functionality
     def save_key(key_name, key_to_save, type_of_key):
         if type_of_key == "private":
