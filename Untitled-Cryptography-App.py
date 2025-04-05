@@ -27,6 +27,10 @@ class key_management:
             key_file.write(key_to_save)
             key_file.close()
 
+    def list_keys(key_folder):
+        for key in os.listdir(key_folder):
+            print(key)
+
     # Key creation for the different ciphers
     def create_aes_key(bit_size):
         if bit_size == 128:
