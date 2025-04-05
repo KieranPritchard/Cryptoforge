@@ -38,6 +38,11 @@ class key_management:
             else:
                 continue
 
+    def delete_key(key_folder, key_to_delete):
+        for key in os.listdir(key_folder):
+            if key == key_to_delete:
+                os.remove(key_to_delete)
+
     # Key creation for the different ciphers
     def create_aes_key(bit_size):
         if bit_size == 128:
