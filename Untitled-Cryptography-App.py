@@ -147,6 +147,16 @@ class AES:
         CBC_mode_decryptor = CBC_mode_cipher.decryptor()
         plaintext = CBC_mode_decryptor.update(ciphertext) + CBC_mode_decryptor.finalize()
         return plaintext
+    
+    def CBC_mode_file_encryption(file,key,iv):
+        CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+        CBC_mode_encryptor = CBC_mode_cipher.encryptor()
+
+        file = open(f"{file}","rw")
+        file_contents = file.read()
+        encrypted_contents = CBC_mode_encryptor.update(file_contents) + CBC_mode_encryptor.finalize()
+        file.write(encrypted_contents)
+        file.close()
 
 class ChaCha20:
     def __init__(self):
