@@ -185,8 +185,8 @@ class ChaCha20:
         pass
 
     def ChaCha20_plaintext_encryption(key,nonce,plaintext):
-        ChaCha20_cipher = algorithms.ChaCha20(key,nonce)
-        ChaCha20cipher = Cipher(ChaCha20_cipher, mode=None, backend=default_backend())
+        ChaCha20_cipher_algorithm = algorithms.ChaCha20(key,nonce)
+        ChaCha20_cipher = Cipher(ChaCha20_cipher_algorithm, mode=None, backend=default_backend())
 
         encryptor = ChaCha20_cipher.encryptor()
         ciphertext = encryptor.update(plaintext)
@@ -194,13 +194,24 @@ class ChaCha20:
         return ciphertext
     
     def ChaCha20_ciphertext_decryption(key,nonce,ciphertext):
-        ChaCha20_cipher = algorithms.ChaCha20(key,nonce)
-        ChaCha20cipher = Cipher(ChaCha20_cipher, mode=None, backend=default_backend())
+        ChaCha20_cipher_algorithm = algorithms.ChaCha20(key,nonce)
+        ChaCha20_cipher = Cipher(ChaCha20_cipher_algorithm, mode=None, backend=default_backend())
 
         decryptor = ChaCha20_cipher.decryptor()
         plaintext = decryptor.update(ciphertext)
 
         return plaintext
+    
+    def ChaCha20_file_encryption(key,nonce, file):
+        ChaCha20_cipher_algorithm = algorithms.ChaCha20(key,nonce)
+        ChaCha20_cipher = Cipher(ChaCha20_cipher_algorithm, mode=None, backend=default_backend())
+        encryptor = ChaCha20_cipher.encryptor()
+
+        file_to_encrypt = open(file, "r")
+        file_contents = file_to_encrypt.read()
+        encrypted_contents = encryptor.update(file_contents)
+        file_to_encrypt.write(nonce + encrypted_contents)
+        file_to_encrypt.close()
 
 class Blowfish:
     def __init__(self,mode):
