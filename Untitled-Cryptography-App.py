@@ -10,10 +10,10 @@ import os
 
 class key_management:
     def __init__(self, key_folder):
-        self.key_folder
+        self.key_folder = key_folder
 
     # Create, Read, Update, and Delete Functionality
-    def save_key(key_name, key_to_save, type_of_key):
+    def save_key(self, key_name, key_to_save, type_of_key):
         if type_of_key == "private":
             key_file = open(f"{key_name}.pem","w")
             key_file.write(key_to_save)
@@ -27,19 +27,27 @@ class key_management:
             key_file.write(key_to_save)
             key_file.close()
 
-    def list_keys(key_folder):
-        for key in os.listdir(key_folder):
+    def load_key(self, key_to_load):
+            for key in os.listdir(self.key_folder):
+                if key == key_to_load:
+                    key_to_load = os.path.join(self.key_folder,key_to_load)
+                    return key_to_load
+                else:
+                    continue
+
+    def list_keys(self):
+        for key in os.listdir(self.key_folder):
             print(key)
 
-    def rename_key(key_folder,key_name, new_key_name):
-        for key in os.listdir(key_folder):
+    def rename_key(self,key_name, new_key_name):
+        for key in os.listdir(self.key_folder):
             if key_name == key:
                 os.rename(key,new_key_name)
             else:
                 continue
 
-    def delete_key(key_folder, key_to_delete):
-        for key in os.listdir(key_folder):
+    def delete_key(self, key_to_delete):
+        for key in os.listdir(self.key_folder):
             if key == key_to_delete:
                 os.remove(key_to_delete)
 
@@ -50,27 +58,27 @@ class key_management:
     
     def create_aes_key(bit_size):
         if bit_size == 128:
-            new_aes_key = os.urandom(128)
+            new_aes_key = os.urandom(128 // 8)
             return new_aes_key
         elif bit_size == 192:
-            new_aes_key = os.urandom(192)
+            new_aes_key = os.urandom(192 // 8)
             return new_aes_key
         elif bit_size == 256:
-            new_aes_key = os.urandom(256)
+            new_aes_key = os.urandom(256 //8)
             return new_aes_key
         else:
             print("Incorrect key size.")
 
     def create_blowfish_key(bit_size):
         if bit_size == 448:
-            new_blowfish_key = os.urandom(448)
+            new_blowfish_key = os.urandom(448 // 8)
             return new_blowfish_key
         else:
             print("Unsecure key size.")
 
     def create_ChaCha20_key(bit_size):
         if bit_size == 256:
-            new_ChaCha20_key = os.urandom(256)
+            new_ChaCha20_key = os.urandom(256 // 7)
             return new_ChaCha20_key
         else:
             print("Incorrect key length.")
