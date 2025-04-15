@@ -184,6 +184,15 @@ class ChaCha20:
     def __init__(self):
         pass
 
+    def ChaCha20_plaintext_encryption(key,nonce,plaintext):
+        ChaCha20_cipher = algorithms.ChaCha20(key,nonce)
+        ChaCha20cipher = Cipher(ChaCha20_cipher, mode=None, backend=default_backend())
+
+        encryptor = ChaCha20_cipher.encryptor()
+        ciphertext = encryptor.update(plaintext)
+
+        return ciphertext
+    
 class Blowfish:
     def __init__(self,mode):
         self.mode = mode
