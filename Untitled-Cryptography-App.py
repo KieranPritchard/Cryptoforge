@@ -52,7 +52,7 @@ class key_management:
                 os.remove(key_to_delete)
 
     # Key creation for the different ciphers
-    def create_iv():
+    def create_aes_cbc_iv():
         new_iv = os.urandom(16)
         return new_iv
     
@@ -75,6 +75,10 @@ class key_management:
             return new_blowfish_key
         else:
             print("Unsecure key size.")
+
+    def create_ChaCha20_nonce():
+        new_ChaCha20_nonce = os.urandom(16)
+        return new_ChaCha20_nonce
 
     def create_ChaCha20_key(bit_size):
         if bit_size == 256:
