@@ -190,10 +190,14 @@ class ChaCha20:
 
         encryptor = ChaCha20_cipher.encryptor()
         ciphertext = encryptor.update(plaintext)
+        nonce_and_ciphertext = nonce+ciphertext
 
-        return ciphertext
+        return nonce_and_ciphertext
     
     def ChaCha20_ciphertext_decryption(key,nonce,ciphertext):
+        nonce = ciphertext[:16]
+        ciphertext = ciphertext[16:]
+
         ChaCha20_cipher_algorithm = algorithms.ChaCha20(key,nonce)
         ChaCha20_cipher = Cipher(ChaCha20_cipher_algorithm, mode=None, backend=default_backend())
 
@@ -207,7 +211,7 @@ class ChaCha20:
         ChaCha20_cipher = Cipher(ChaCha20_cipher_algorithm, mode=None, backend=default_backend())
         encryptor = ChaCha20_cipher.encryptor()
 
-        file_to_encrypt = open(file, "r")
+        file_to_encrypt = open(file, "rb")
         file_contents = file_to_encrypt.read()
         encrypted_contents = encryptor.update(file_contents)
         file_to_encrypt.write(nonce + encrypted_contents)
@@ -229,8 +233,8 @@ class ChaCha20:
         file_to_decrypt.close()
 
 class Blowfish:
-    def __init__(self,mode):
-        self.mode = mode
+    def __init__(self):
+        pass
 
 class RSA:
     def __init__(self):
