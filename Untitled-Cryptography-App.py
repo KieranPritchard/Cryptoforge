@@ -213,6 +213,21 @@ class ChaCha20:
         file_to_encrypt.write(nonce + encrypted_contents)
         file_to_encrypt.close()
 
+    def ChaCha20_file_decryption(key,nonce, file):
+        file_to_decrypt = open(file, "rb")
+        file_contents = file_to_decrypt.read()
+
+        nonce = file_contents[:16]
+        decrypted_contents = file_contents[16:]
+
+        ChaCha20_cipher_algorithm = algorithms.ChaCha20(key,nonce)
+        ChaCha20_cipher = Cipher(ChaCha20_cipher_algorithm, mode=None, backend=default_backend())
+        decryptor = ChaCha20_cipher.decryptor()
+
+        decrypted_contents = decryptor.update(decrypted_contents)
+        file_to_decrypt.write(decrypted_contents)
+        file_to_decrypt.close()
+
 class Blowfish:
     def __init__(self,mode):
         self.mode = mode
