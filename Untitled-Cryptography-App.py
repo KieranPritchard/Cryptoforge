@@ -248,6 +248,21 @@ class Blowfish:
         ciphertext = encryptor.update(padded_plaintext) + encryptor.finalize()
 
         return iv + ciphertext
+    
+    def cbc_ciphertext_decryption(key,ciphertext):
+        iv = ciphertext[:8]
+        ciphertext = ciphertext[8:]
+
+        cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+
+        padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+
+        unpadder = padding.PKCS7(algorithms.Blowfish.block_size).unpadder()
+        plaintext_bytes = unpadder.update(padded_plaintext) + unpadder.finalize()
+        plaintext = plaintext_bytes.decode()
+
+        return plaintext
 
 class RSA:
     def __init__(self):
