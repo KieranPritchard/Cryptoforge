@@ -236,6 +236,19 @@ class Blowfish:
     def __init__(self):
         pass
 
+    def cbc_plaintext_encryption(key, plaintext):
+        iv = os.urandom(8)
+
+        cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+
+        padder = padding.PKCS7(algorithms.Blowfish.block_size).padder()
+        padded_plaintext = padder.update(plaintext.encode()) + padder.finalize()
+
+        ciphertext = encryptor.update(padded_plaintext) + encryptor.finalize()
+
+        return iv + ciphertext
+
 class RSA:
     def __init__(self):
         pass
