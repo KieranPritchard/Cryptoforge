@@ -323,6 +323,22 @@ class RSA:
         )
 
         return plaintext
+    
+    def rsa_file_encryption(public_key, file):
+        file = open(file, "rb")
+        file_contents = file.read()
+
+        encrypted_contents = public_key.encrypt(
+            file_contents,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+
+        file = open(file, "wb")
+        encrypted_file = file.write(encrypted_contents)
 
 class SHA_2:
     def __init__(self):
