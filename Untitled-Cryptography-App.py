@@ -278,6 +278,24 @@ class Blowfish:
 
         file.write(iv + padded_file)
 
+    def cbc_file_decryption(key, file):
+        file = open(file,"rb")
+        file_contents = file.read()
+
+        iv = file_contents[:8]
+        encrypted_contents = file_contents[8:]
+
+        cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+
+        padded_contents = decryptor.update(encrypted_contents) + decryptor.finalize()
+
+        unpadder = padding.PKCS7(algorithms.Blowfish.block_size).unpadder()
+        file_bytes = unpadder.update(padded_contents) + unpadder.finalize()
+        decrypted_file = file_bytes.decode()
+
+        file.write(decrypted_file)
+
 class RSA:
     def __init__(self):
         pass
