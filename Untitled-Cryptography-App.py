@@ -263,6 +263,20 @@ class Blowfish:
         plaintext = plaintext_bytes.decode()
 
         return plaintext
+    
+    def cbc_file_encryption(key, file):
+        iv = os.urandom(8)
+
+        cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+
+        file = open(file,"rb")
+        file_contents = file.read()
+
+        padder = padding.PKCS7(algorithms.Blowfish.block_size).padder()
+        padded_file = padder.update(file_contents.encode()) + padder.finalize()
+
+        file.write(iv + padded_file)
 
 class RSA:
     def __init__(self):
