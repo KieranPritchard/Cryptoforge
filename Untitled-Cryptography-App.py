@@ -300,6 +300,18 @@ class RSA:
     def __init__(self):
         pass
 
+    def rsa_plaintext_encryption(public_key, plaintext):
+        ciphertext = public_key.encrypt(
+            plaintext,
+            padding.OAEP(
+                mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                algorithm=hashes.SHA256(),
+                label=None
+            )
+        )
+
+        return ciphertext
+
 class SHA_2:
     def __init__(self):
         pass
