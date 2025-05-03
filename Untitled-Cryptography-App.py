@@ -367,7 +367,8 @@ class SHA_200:
     def sha224_plaintext_hash_bytes(plaintext):
         sha224_object = hashlib.sha224()
 
-        byte_digest = sha224_object.digest(plaintext)
+        byte_updates = sha224_object.update(plaintext)
+        byte_digest = sha224_object.digest(byte_updates)
 
         return byte_digest
 
