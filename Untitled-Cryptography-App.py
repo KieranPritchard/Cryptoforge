@@ -360,9 +360,16 @@ class RSA:
         file.write(decrypted_contents)
         file.close()
 
-class SHA_2:
+class SHA_200:
     def __init__(self):
         pass
+
+    def sha224_plaintext_hash_bytes(plaintext):
+        sha224_object = hashlib.sha224()
+
+        byte_digest = sha224_object.digest(plaintext)
+
+        return byte_digest
 
 class SHA_3:
     def __init__(self):
