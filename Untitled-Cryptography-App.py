@@ -371,6 +371,14 @@ class SHA_200:
         byte_digest = sha224_object.digest(byte_updates)
 
         return byte_digest
+    
+    def sha224_plaintext_hash_hex(plaintext):
+        sha224_object = hashlib.sha224()
+
+        byte_updates = sha224_object.update(plaintext)
+        hex_digest = sha224_object.hexdigest(byte_updates)
+
+        return hex_digest
 
 class SHA_3:
     def __init__(self):
