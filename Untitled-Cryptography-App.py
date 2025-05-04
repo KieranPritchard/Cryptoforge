@@ -379,6 +379,22 @@ class SHA_200:
         hex_digest = sha224_object.hexdigest(byte_updates)
 
         return hex_digest
+    
+    def sha224_file_hash_bytes(file):
+        file_to_hash = open(file, "rb")
+        data = file_to_hash.read()
+        file_to_hash.close()
+
+        hash_result_bytes = hashlib.sha224(data).digest()
+        return hash_result_bytes
+    
+    def sha224_file_hash_hex(file):
+        file_to_hash = open(file, "rb")
+        data = file_to_hash.read()
+        file_to_hash.close()
+
+        hash_result_hex= hashlib.sha224(data).hexdigest()
+        return hash_result_hex
 
 class SHA_3:
     def __init__(self):
