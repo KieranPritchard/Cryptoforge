@@ -428,6 +428,38 @@ class SHA_200:
         hash_result_hex= hashlib.sha256(data).hexdigest()
         return hash_result_hex
 
+    def sha384_plaintext_hash_bytes(plaintext):
+        sha384_object = hashlib.sha384()
+
+        byte_updates = sha384_object.update(plaintext)
+        byte_digest = sha384_object.digest(byte_updates)
+
+        return byte_digest
+    
+    def sha384_plaintext_hash_hex(plaintext):
+        sha384_object = hashlib.sha384()
+
+        byte_updates = sha384_object.update(plaintext)
+        hex_digest = sha384_object.hexdigest(byte_updates)
+
+        return hex_digest
+    
+    def sha384_file_hash_bytes(file):
+        file_to_hash = open(file, "rb")
+        data = file_to_hash.read()
+        file_to_hash.close()
+
+        hash_result_bytes = hashlib.sha384(data).digest()
+        return hash_result_bytes
+    
+    def sha384_file_hash_hex(file):
+        file_to_hash = open(file, "rb")
+        data = file_to_hash.read()
+        file_to_hash.close()
+
+        hash_result_hex= hashlib.sha384(data).hexdigest()
+        return hash_result_hex
+
 class SHA_3:
     def __init__(self):
         pass
