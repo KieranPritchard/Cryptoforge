@@ -459,6 +459,40 @@ class SHA_200:
 
         hash_result_hex= hashlib.sha384(data).hexdigest()
         return hash_result_hex
+    
+    def sha512_plaintext_hash_bytes(plaintext):
+        sha512_object = hashlib.sha512()
+
+        byte_updates = sha512_object.update(plaintext)
+        hash_bytes = sha512_object.digest(byte_updates)
+
+        return hash_bytes
+    
+    def sha512_plaintext_hash_hex(plaintext):
+        sha512_object = hashlib.sha512()
+
+        byte_updates = sha512_object.update(plaintext)
+        hash_hex = sha512_object.hexdigest(byte_updates)
+
+        return hash_hex
+    
+    def sha512_file_hash_bytes(file):
+        file_to_hash = open(file, "rb")
+        data = file_to_hash.read()
+        file_to_hash.close()
+
+        hash_result_bytes = hashlib.sha512(data).digest()
+
+        return hash_result_bytes
+    
+    def sha512_file_hash_bytes(file):
+        file_to_hash = open(file, "rb")
+        data = file_to_hash.read()
+        file_to_hash.close()
+
+        hash_result_hex = hashlib.sha512(data).hexdigest()
+
+        return hash_result_hex
 
 class SHA_3:
     def __init__(self):
