@@ -134,6 +134,27 @@ class key_management:
             format=serialization.PublicFormat.SubjectPublicKeyInfo
         )
         return ecc_public_key, ecc_public_pem
+    
+    def create_ecdsa_private_key():
+        private_key = ec.generate_private_key(ec.SECP256R1())
+        
+        private_key_pem = private_key.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption()
+        )
+
+        return private_key, private_key_pem
+    
+    def create_ecdsa_private_key(private_key):
+        public_key = private_key.public_key()
+
+        public_key_pem = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo
+        )
+
+        return public_key, public_key_pem
 
 class AES:
     def __init__(self):
