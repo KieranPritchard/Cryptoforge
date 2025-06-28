@@ -2,24 +2,53 @@ from cryptography.hazmat.primitives.asymmetric import ec
 from cryptography.hazmat.primitives import hashes
 from cryptography.exceptions import InvalidSignature
 
-def ecdsa_sign_file(file_path, signature_path, private_key):
-        with open(file_path, "rb") as f:
-            data = f.read()
+class ecdsa_digital_signature:
+    def ecdsa_sign_bytes(message, private_key):
+        signature = private_key.sign(
+            message,
+            ec.ECDSA(hashes.SHA256())
+        )
 
-        signature = private_key.sign(data, ec.ECDSA(hashes.SHA256()))
+        print("Signature:", signature.hex())
 
-        with open(signature_path, "wb") as f:
-            f.write(signature)
+    def ecdsa_sign_bytes(message, private_key):
+        signature = private_key.sign(
+            message,
+            ec.ECDSA(hashes.SHA256())
+        )
 
-def ecdsa_verify_file(file_path, signature_path, public_key):
-        with open(file_path, "rb") as f:
-            data = f.read()
+        print("Signature:", signature.bytes())
 
-        with open(signature_path, "rb") as f:
-            signature = f.read()
-
+    def ecdsa_verify_message(public_key, signature, message):
         try:
-            public_key.verify(signature, data, ec.ECDSA(hashes.SHA256()))
+            public_key.verify(
+                signature,
+                message,
+                ec.ECDSA(hashes.SHA256())
+            )
             print("✅ Signature is valid.")
         except InvalidSignature:
             print("❌ Signature is INVALID.")
+
+
+    def ecdsa_sign_file(file_path, signature_path, private_key):
+            with open(file_path, "rb") as f:
+                data = f.read()
+
+            signature = private_key.sign(data, ec.ECDSA(hashes.SHA256()))
+
+            with open(signature_path, "wb") as f:
+                f.write(signature)
+
+    def ecdsa_verify_file(file_path, signature_path, public_key):
+            with open(file_path, "rb") as f:
+                data = f.read()
+
+            with open(signature_path, "rb") as f:
+                signature = f.read()
+
+            try:
+                public_key.verify(signature, data, ec.ECDSA(hashes.SHA256()))
+                print("✅ Signature is valid.")
+            except InvalidSignature:
+                print("❌ Signature is INVALID.")
