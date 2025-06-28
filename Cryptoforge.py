@@ -5,11 +5,23 @@ import src.blake2_hash_algorithm
 import src.blowfish_algorithms_functions
 import src.chacha20_algorithm_fuctions
 import src.ecdsa_digital_signature
+import src.rsa_digital_signatures
 import src.key_management
-import src.ecdsa_digital_signature
 import src.rsa_algorithm_fuctions
 import src.sha_200_hash_functions
 import src.sha_300_hash_functions
+
+key_manager = src.key_management()
+
+aes_cipher = src.aes_algorithm_functions.AES()
+blowfish_cipher = src.blowfish_algorithms_functions.Blowfish()
+chacha20_cipher = src.chacha20_algorithm_fuctions.ChaCha20()
+blake2_hash = src.blake2_hash_algorithm.Blake2()
+rsa_cipher = src.rsa_algorithm_fuctions.RSA()
+sha200_hash = src.sha_200_hash_functions.SHA_200()
+sha300_hash = src.sha_300_hash_functions.SHA_300()
+cdsa_digital_signature = src.ecdsa_digital_signature.ecdsa_digital_signature()
+rsa_digital_signature = src.rsa_digital_signatures.RSA_digital_signatures()
 
 parser = argparse.ArgumentParser(description="My personal cryptography ultility consult the readme file for more information.")
 parser.add_argument("function")
