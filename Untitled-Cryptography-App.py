@@ -767,3 +767,21 @@ class Blake2:
         hash_result_hex = hashlib.blake2b(data).hexdigest()
 
         return hash_result_hex
+    
+class RSA_digital_signatures:
+    def __init__(self):
+        pass
+
+    def RSA_sign_bytes(message, private_key):
+        signature = private_key.sign(
+            message,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256
+        )
+
+        signature_in_bytes = signature.bytes()
+
+        return signature_in_bytes
