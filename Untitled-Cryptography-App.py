@@ -814,3 +814,40 @@ class RSA_digital_signatures:
             print("Signature is valid")
         except Exception as e:
             print("Signature is invalid", e)
+    
+    def RSA_sign_file(file_path, private_key):
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+        
+        signature = private_key.sign(
+            file_data,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+        )
+
+        with open("signature.sig", "wb") as sig_file:
+            sig_file.write(signature)
+
+    def RSA_verify_file(file_path, public_key):
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+
+        with open("signature.sig", "rb") as sig_file:
+            signature = sig_file.read()
+
+        try:
+            public_key.verify(
+                signature,
+                file_data,
+                padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA256()),
+                    salt_length=padding.PSS.MAX_LENGTH
+                ),
+                hashes.SHA256()
+            )
+            print("Signature is valid.")
+        except Exception as e:
+            print("Signature is invalid:", e)
