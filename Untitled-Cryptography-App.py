@@ -785,3 +785,17 @@ class RSA_digital_signatures:
         signature_in_bytes = signature.bytes()
 
         return signature_in_bytes
+    
+    def RSA_sign_hex(message, private_key):
+        signature = private_key.sign(
+            message,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256
+        )
+
+        signature_in_hex = signature.hex()
+
+        return signature_in_hex
