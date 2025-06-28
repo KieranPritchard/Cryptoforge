@@ -27,4 +27,16 @@ parser.add_argument("--old-name", type=str, help="old name of the key to rename.
 parser.add_argument("--new-name", type=str, help="new name of the key to rename.")
 # delete key arguements
 parser.add_argument("--delete-key", type=str, help="specifies key to delete.")
+# key creation
+parser.add_argument("--aes-key")
+parser.add_argument("--blowfish-key")
+parser.add_argument("--chacha20-key")
+parser.add_argument("--rsa-private-key")
+parser.add_argument("--rsa-public-key")
+parser.add_argument("--ecc-private-key")
+parser.add_argument("--ecc-public-key")
+parser.add_argument("--ecdsa-private-key")
+parser.add_argument("--ecdsa-public-key")
+parser.add_argument("--bit-size")
+parser.add_argument("--nonce")
 args = parser.parse_args()

@@ -141,7 +141,7 @@ class key_management:
 
         return private_key, private_key_pem
     
-    def create_ecdsa_private_key(private_key):
+    def create_ecdsa_public_key(private_key):
         public_key = private_key.public_key()
 
         public_key_pem = public_key.public_bytes(
