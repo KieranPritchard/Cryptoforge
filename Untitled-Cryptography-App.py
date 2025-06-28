@@ -799,3 +799,18 @@ class RSA_digital_signatures:
         signature_in_hex = signature.hex()
 
         return signature_in_hex
+    
+    def RSA_verify_message(public_key, signature, message):
+        try:
+            public_key.verify(
+                signature,
+                message,
+                padding.PSS(
+                    mgf=padding.MGF1(hashes.SHA256()),
+                    salt_length=padding.PSS.MAX_LENGTH
+                ),
+                hashes.SHA256()
+            )
+            print("Signature is valid")
+        except Exception as e:
+            print("Signature is invalid", e)
