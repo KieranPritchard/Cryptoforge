@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 # my custom imports for the functions.
 import src.aes_algorithm_functions
 import src.blake2_hash_algorithm
@@ -15,6 +16,9 @@ import src.sha_300_hash_functions
 # Load configuration
 with open("config.json", "r") as config_file:
     config_data = json.load(config_file)
+
+# Create keys directory if it doesn't exist
+os.makedirs(config_data["key_folder"], exist_ok=True)
 
 key_manager = src.key_management.key_management(key_folder=config_data["key_folder"])
 
@@ -71,12 +75,20 @@ parser.add_argument("--output-format", type=str, choices=["hex", "bytes"], defau
 
 args = parser.parse_args()
 
+# Global variable to store loaded key
+loaded_key = None
+
 # Function to handle key management operations
 def handle_key_management():
+    global loaded_key
+    
     if args.save_key and args.new_key_name and args.key_type:
         # This would need the actual key data to save
         print(f"Saving key '{args.new_key_name}' of type '{args.key_type}'")
-        # key_manager.save_key(args.new_key_name, key_data, args.key_type)
+        if loaded_key:
+            key_manager.save_key(args.new_key_name, loaded_key, args.key_type)
+        else:
+            print("No key loaded to save")
     
     elif args.load_key:
         print(f"Loading key: {args.load_key}")
@@ -102,50 +114,119 @@ def handle_key_creation():
     if args.aes_key:
         print(f"Creating AES key with {bit_size} bits")
         aes_key = key_manager.create_aes_key(bit_size)
-        print(f"AES key created: {aes_key.hex()}")
+        if aes_key:
+            print(f"AES key created: {aes_key.hex()}")
+            # Save the key
+            key_manager.save_key("aes_key", aes_key.hex(), "symetric")
     
     elif args.blowfish_key:
         print(f"Creating Blowfish key with {bit_size} bits")
         blowfish_key = key_manager.create_blowfish_key(bit_size)
-        print(f"Blowfish key created: {blowfish_key.hex()}")
+        if blowfish_key:
+            print(f"Blowfish key created: {blowfish_key.hex()}")
+            # Save the key
+            key_manager.save_key("blowfish_key", blowfish_key.hex(), "symetric")
     
     elif args.chacha20_key:
         print(f"Creating ChaCha20 key with {bit_size} bits")
         chacha20_key = key_manager.create_ChaCha20_key(bit_size)
-        print(f"ChaCha20 key created: {chacha20_key.hex()}")
+        if chacha20_key:
+            print(f"ChaCha20 key created: {chacha20_key.hex()}")
+            # Save the key
+            key_manager.save_key("chacha20_key", chacha20_key.hex(), "symetric")
     
     elif args.rsa_private_key:
         print("Creating RSA private key")
         rsa_private_key, rsa_private_pem = key_manager.create_rsa_private_key()
         print("RSA private key created")
+        # Save the private key
+        key_manager.save_key("rsa_private_key", rsa_private_pem.decode(), "private")
+        print("RSA private key saved to keys folder")
     
     elif args.rsa_public_key:
-        print("Creating RSA public key (requires private key)")
-        # This would need the private key as input
-        # rsa_public_key, rsa_public_pem = key_manager.create_rsa_public_key(private_key)
-        print("RSA public key creation requires private key input")
+        print("Creating RSA public key")
+        if args.key:  # If private key file is provided
+            try:
+                # Load private key from file
+                with open(args.key, 'r') as f:
+                    private_key_pem = f.read()
+                # Load the private key object
+                private_key = key_manager.load_rsa_private_key_from_pem(private_key_pem)
+                if private_key:
+                    # Create public key from private key
+                    rsa_public_key, rsa_public_pem = key_manager.create_rsa_public_key(private_key)
+                    print("RSA public key created successfully")
+                    # Save the public key
+                    key_manager.save_key("rsa_public_key", rsa_public_pem.decode(), "public")
+                    print("RSA public key saved to keys folder")
+                else:
+                    print("Failed to load RSA private key from file")
+            except FileNotFoundError:
+                print(f"Private key file not found: {args.key}")
+        else:
+            print("RSA public key creation requires --key argument with private key file path")
     
     elif args.ecc_private_key:
         print("Creating ECC private key")
         ecc_private_key, ecc_private_pem = key_manager.create_ecc_private_key()
         print("ECC private key created")
+        # Save the private key
+        key_manager.save_key("ecc_private_key", ecc_private_pem.decode(), "private")
+        print("ECC private key saved to keys folder")
     
     elif args.ecc_public_key:
-        print("Creating ECC public key (requires private key)")
-        # This would need the private key as input
-        # ecc_public_key, ecc_public_pem = key_manager.create_ecc_public_key(private_key)
-        print("ECC public key creation requires private key input")
+        print("Creating ECC public key")
+        if args.key:  # If private key file is provided
+            try:
+                # Load private key from file
+                with open(args.key, 'r') as f:
+                    private_key_pem = f.read()
+                # Load the private key object
+                private_key = key_manager.load_ecc_private_key_from_pem(private_key_pem)
+                if private_key:
+                    # Create public key from private key
+                    ecc_public_key, ecc_public_pem = key_manager.create_ecc_public_key(private_key)
+                    print("ECC public key created successfully")
+                    # Save the public key
+                    key_manager.save_key("ecc_public_key", ecc_public_pem.decode(), "public")
+                    print("ECC public key saved to keys folder")
+                else:
+                    print("Failed to load ECC private key from file")
+            except FileNotFoundError:
+                print(f"Private key file not found: {args.key}")
+        else:
+            print("ECC public key creation requires --key argument with private key file path")
     
     elif args.ecdsa_private_key:
         print("Creating ECDSA private key")
         ecdsa_private_key, ecdsa_private_pem = key_manager.create_ecdsa_private_key()
         print("ECDSA private key created")
+        # Save the private key
+        key_manager.save_key("ecdsa_private_key", ecdsa_private_pem.decode(), "private")
+        print("ECDSA private key saved to keys folder")
     
     elif args.ecdsa_public_key:
-        print("Creating ECDSA public key (requires private key)")
-        # This would need the private key as input
-        # ecdsa_public_key, ecdsa_public_pem = key_manager.create_ecdsa_public_key(private_key)
-        print("ECDSA public key creation requires private key input")
+        print("Creating ECDSA public key")
+        if args.key:  # If private key file is provided
+            try:
+                # Load private key from file
+                with open(args.key, 'r') as f:
+                    private_key_pem = f.read()
+                # Load the private key object
+                private_key = key_manager.load_ecdsa_private_key_from_pem(private_key_pem)
+                if private_key:
+                    # Create public key from private key
+                    ecdsa_public_key, ecdsa_public_pem = key_manager.create_ecdsa_public_key(private_key)
+                    print("ECDSA public key created successfully")
+                    # Save the public key
+                    key_manager.save_key("ecdsa_public_key", ecdsa_public_pem.decode(), "public")
+                    print("ECDSA public key saved to keys folder")
+                else:
+                    print("Failed to load ECDSA private key from file")
+            except FileNotFoundError:
+                print(f"Private key file not found: {args.key}")
+        else:
+            print("ECDSA public key creation requires --key argument with private key file path")
 
 # Function to handle AES operations
 def handle_aes_operations():
@@ -167,10 +248,10 @@ def handle_aes_operations():
         iv = bytes.fromhex(args.iv) if len(args.iv) % 2 == 0 else args.iv.encode()
         
         # Pad data
-        padded_data = src.aes_algorithm_functions.AES.padding(data)
+        padded_data = aes_cipher.padding(data)
         
         # Encrypt
-        ciphertext = src.aes_algorithm_functions.AES.CBC_mode_plaintext_encryption(padded_data, key, iv)
+        ciphertext = aes_cipher.CBC_mode_plaintext_encryption(padded_data, key, iv)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.encrypted"
@@ -192,10 +273,10 @@ def handle_aes_operations():
         iv = bytes.fromhex(args.iv) if len(args.iv) % 2 == 0 else args.iv.encode()
         
         # Decrypt
-        plaintext = src.aes_algorithm_functions.AES.CBC_mode_ciphertext_decryption(data, key, iv)
+        plaintext = aes_cipher.CBC_mode_ciphertext_decryption(data, key, iv)
         
         # Unpad
-        unpadded_data = src.aes_algorithm_functions.AES.unpadder(plaintext)
+        unpadded_data = aes_cipher.unpadder(plaintext)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.decrypted"
@@ -222,7 +303,7 @@ def handle_blowfish_operations():
         key = bytes.fromhex(args.key) if len(args.key) % 2 == 0 else args.key.encode()
         
         # Encrypt
-        ciphertext = src.blowfish_algorithms_functions.Blowfish.cbc_plaintext_encryption(key, data)
+        ciphertext = blowfish_cipher.cbc_plaintext_encryption(key, data)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.encrypted"
@@ -243,7 +324,7 @@ def handle_blowfish_operations():
         key = bytes.fromhex(args.key) if len(args.key) % 2 == 0 else args.key.encode()
         
         # Decrypt
-        plaintext = src.blowfish_algorithms_functions.Blowfish.cbc_ciphertext_decryption(key, data)
+        plaintext = blowfish_cipher.cbc_ciphertext_decryption(key, data)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.decrypted"
@@ -271,7 +352,7 @@ def handle_chacha20_operations():
         nonce = bytes.fromhex(args.nonce) if len(args.nonce) % 2 == 0 else args.nonce.encode()
         
         # Encrypt
-        ciphertext = src.chacha20_algorithm_fuctions.ChaCha20.ChaCha20_plaintext_encryption(key, nonce, data)
+        ciphertext = chacha20_cipher.ChaCha20_plaintext_encryption(key, nonce, data)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.encrypted"
@@ -288,15 +369,15 @@ def handle_chacha20_operations():
         with open(args.input, 'rb') as f:
             data = f.read()
         
-        # Convert key from hex if needed
-        key = bytes.fromhex(args.key) if len(args.key) % 2 == 0 else args.key.encode()
-        
         # Extract nonce from data
         nonce = data[:16]
         ciphertext = data[16:]
         
+        # Convert key from hex if needed
+        key = bytes.fromhex(args.key) if len(args.key) % 2 == 0 else args.key.encode()
+        
         # Decrypt
-        plaintext = src.chacha20_algorithm_fuctions.ChaCha20.ChaCha20_ciphertext_decryption(key, nonce, ciphertext)
+        plaintext = chacha20_cipher.ChaCha20_ciphertext_decryption(key, nonce, ciphertext)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.decrypted"
@@ -327,105 +408,105 @@ def handle_hash_operations():
             if is_file:
                 if output_format == "hex":
                     if hash_type == "sha224":
-                        result = src.sha_200_hash_functions.SHA_200.sha224_file_hash_hex(args.input)
+                        result = sha200_hash.sha224_file_hash_hex(args.input)
                     elif hash_type == "sha256":
-                        result = src.sha_200_hash_functions.SHA_200.sha256_file_hash_hex(args.input)
+                        result = sha200_hash.sha256_file_hash_hex(args.input)
                     elif hash_type == "sha384":
-                        result = src.sha_200_hash_functions.SHA_200.sha384_file_hash_hex(args.input)
+                        result = sha200_hash.sha384_file_hash_hex(args.input)
                     elif hash_type == "sha512":
-                        result = src.sha_200_hash_functions.SHA_200.sha512_file_hash_hex(args.input)
+                        result = sha200_hash.sha512_file_hash_hex(args.input)
                 else:
                     if hash_type == "sha224":
-                        result = src.sha_200_hash_functions.SHA_200.sha224_file_hash_bytes(args.input)
+                        result = sha200_hash.sha224_file_hash_bytes(args.input)
                     elif hash_type == "sha256":
-                        result = src.sha_200_hash_functions.SHA_200.sha256_file_hash_bytes(args.input)
+                        result = sha200_hash.sha256_file_hash_bytes(args.input)
                     elif hash_type == "sha384":
-                        result = src.sha_200_hash_functions.SHA_200.sha384_file_hash_bytes(args.input)
+                        result = sha200_hash.sha384_file_hash_bytes(args.input)
                     elif hash_type == "sha512":
-                        result = src.sha_200_hash_functions.SHA_200.sha512_file_hash_bytes(args.input)
+                        result = sha200_hash.sha512_file_hash_bytes(args.input)
             else:
                 if output_format == "hex":
                     if hash_type == "sha224":
-                        result = src.sha_200_hash_functions.SHA_200.sha224_plaintext_hash_hex(data)
+                        result = sha200_hash.sha224_plaintext_hash_hex(data)
                     elif hash_type == "sha256":
-                        result = src.sha_200_hash_functions.SHA_200.sha256_plaintext_hash_hex(data)
+                        result = sha200_hash.sha256_plaintext_hash_hex(data)
                     elif hash_type == "sha384":
-                        result = src.sha_200_hash_functions.SHA_200.sha384_plaintext_hash_hex(data)
+                        result = sha200_hash.sha384_plaintext_hash_hex(data)
                     elif hash_type == "sha512":
-                        result = src.sha_200_hash_functions.SHA_200.sha512_plaintext_hash_hex(data)
+                        result = sha200_hash.sha512_plaintext_hash_hex(data)
                 else:
                     if hash_type == "sha224":
-                        result = src.sha_200_hash_functions.SHA_200.sha224_plaintext_hash_bytes(data)
+                        result = sha200_hash.sha224_plaintext_hash_bytes(data)
                     elif hash_type == "sha256":
-                        result = src.sha_200_hash_functions.SHA_200.sha256_plaintext_hash_bytes(data)
+                        result = sha200_hash.sha256_plaintext_hash_bytes(data)
                     elif hash_type == "sha384":
-                        result = src.sha_200_hash_functions.SHA_200.sha384_plaintext_hash_bytes(data)
+                        result = sha200_hash.sha384_plaintext_hash_bytes(data)
                     elif hash_type == "sha512":
-                        result = src.sha_200_hash_functions.SHA_200.sha512_plaintext_hash_bytes(data)
+                        result = sha200_hash.sha512_plaintext_hash_bytes(data)
         
         elif hash_type in ["sha3_224", "sha3_256", "sha3_384", "sha3_512"]:
             if is_file:
                 if output_format == "hex":
                     if hash_type == "sha3_224":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_224_file_hash_hex(args.input)
+                        result = sha300_hash.sha3_224_file_hash_hex(args.input)
                     elif hash_type == "sha3_256":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_256_file_hash_hex(args.input)
+                        result = sha300_hash.sha3_256_file_hash_hex(args.input)
                     elif hash_type == "sha3_384":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_384_file_hash_hex(args.input)
+                        result = sha300_hash.sha3_384_file_hash_hex(args.input)
                     elif hash_type == "sha3_512":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_512_file_hash_hex(args.input)
+                        result = sha300_hash.sha3_512_file_hash_hex(args.input)
                 else:
                     if hash_type == "sha3_224":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_224_file_hash_bytes(args.input)
+                        result = sha300_hash.sha3_224_file_hash_bytes(args.input)
                     elif hash_type == "sha3_256":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_256_file_hash_bytes(args.input)
+                        result = sha300_hash.sha3_256_file_hash_bytes(args.input)
                     elif hash_type == "sha3_384":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_384_file_hash_bytes(args.input)
+                        result = sha300_hash.sha3_384_file_hash_bytes(args.input)
                     elif hash_type == "sha3_512":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_512_file_hash_bytes(args.input)
+                        result = sha300_hash.sha3_512_file_hash_bytes(args.input)
             else:
                 if output_format == "hex":
                     if hash_type == "sha3_224":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_224_plaintext_hash_hex(data)
+                        result = sha300_hash.sha3_224_plaintext_hash_hex(data)
                     elif hash_type == "sha3_256":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_256_plaintext_hash_hex(data)
+                        result = sha300_hash.sha3_256_plaintext_hash_hex(data)
                     elif hash_type == "sha3_384":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_384_plaintext_hash_hex(data)
+                        result = sha300_hash.sha3_384_plaintext_hash_hex(data)
                     elif hash_type == "sha3_512":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_512_plaintext_hash_hex(data)
+                        result = sha300_hash.sha3_512_plaintext_hash_hex(data)
                 else:
                     if hash_type == "sha3_224":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_224_plaintext_hash_bytes(data)
+                        result = sha300_hash.sha3_224_plaintext_hash_bytes(data)
                     elif hash_type == "sha3_256":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_256_plaintext_hash_bytes(data)
+                        result = sha300_hash.sha3_256_plaintext_hash_bytes(data)
                     elif hash_type == "sha3_384":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_384_plaintext_hash_bytes(data)
+                        result = sha300_hash.sha3_384_plaintext_hash_bytes(data)
                     elif hash_type == "sha3_512":
-                        result = src.sha_300_hash_functions.SHA_300.sha3_512_plaintext_hash_bytes(data)
+                        result = sha300_hash.sha3_512_plaintext_hash_bytes(data)
     
     elif hash_type in ["blake2s", "blake2b"]:
         if is_file:
             if output_format == "hex":
                 if hash_type == "blake2s":
-                    result = src.blake2_hash_algorithm.Blake2.blake2s_file_hash_hex(args.input)
+                    result = blake2_hash.blake2s_file_hash_hex(args.input)
                 else:
-                    result = src.blake2_hash_algorithm.Blake2.blake2b_file_hash_hex(args.input)
+                    result = blake2_hash.blake2b_file_hash_hex(args.input)
             else:
                 if hash_type == "blake2s":
-                    result = src.blake2_hash_algorithm.Blake2.blake2s_file_hash_bytes(args.input)
+                    result = blake2_hash.blake2s_file_hash_bytes(args.input)
                 else:
-                    result = src.blake2_hash_algorithm.Blake2.blake2b_file_hash_bytes(args.input)
+                    result = blake2_hash.blake2b_file_hash_bytes(args.input)
         else:
             if output_format == "hex":
                 if hash_type == "blake2s":
-                    result = src.blake2_hash_algorithm.Blake2.blake2s_plaintext_hash_hex(data)
+                    result = blake2_hash.blake2s_plaintext_hash_hex(data)
                 else:
-                    result = src.blake2_hash_algorithm.Blake2.blake2b_plaintext_hash_hex(data)
+                    result = blake2_hash.blake2b_plaintext_hash_hex(data)
             else:
                 if hash_type == "blake2s":
-                    result = src.blake2_hash_algorithm.Blake2.blake2s_plaintext_hash_bytes(data)
+                    result = blake2_hash.blake2s_plaintext_hash_bytes(data)
                 else:
-                    result = src.blake2_hash_algorithm.Blake2.blake2b_plaintext_hash_bytes(data)
+                    result = blake2_hash.blake2b_plaintext_hash_bytes(data)
     
     else:
         print(f"Unsupported hash type: {hash_type}")
