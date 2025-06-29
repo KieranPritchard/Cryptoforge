@@ -1,4 +1,5 @@
 import argparse
+import json
 # my custom imports for the functions.
 import src.aes_algorithm_functions
 import src.blake2_hash_algorithm
@@ -11,7 +12,11 @@ import src.rsa_algorithm_fuctions
 import src.sha_200_hash_functions
 import src.sha_300_hash_functions
 
-key_manager = src.key_management.key_management(key_folder = "")
+# Load configuration
+with open("config.json", "r") as config_file:
+    config_data = json.load(config_file)
+
+key_manager = src.key_management.key_management(key_folder=config_data["key_folder"])
 
 aes_cipher = src.aes_algorithm_functions.AES()
 blowfish_cipher = src.blowfish_algorithms_functions.Blowfish()
