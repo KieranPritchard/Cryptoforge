@@ -92,7 +92,7 @@ def handle_key_management():
     
     elif args.load_key:
         print(f"Loading key: {args.load_key}")
-        loaded_key = key_manager.load_key(args.load_key)
+        loaded_key = key_manager.load_symetric_key(args.load_key)
         print(f"Loaded key from: {loaded_key}")
     
     elif args.list_keys:
