@@ -1,5 +1,5 @@
 {
     "key_manager":{
-        "key_folder_path": ""
+        "key_folder_path": "./keys"
     }
 }
