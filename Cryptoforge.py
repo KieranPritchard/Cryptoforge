@@ -440,6 +440,66 @@ def handle_hash_operations():
         else:
             print(f"Hash: {result.hex()}")
 
+# Function to handle ECDSA signature operations
+def handle_ecdsa_signature_operations():
+    if not args.operation or not args.input:
+        print("ECDSA signature operations require --operation and --input arguments")
+        return
+    
+    if args.operation == "sign":
+        if not args.key:
+            print("ECDSA signing requires --key argument (private key)")
+            return
+        
+        # For now, we'll use a simple message
+        message = args.input.encode()
+        
+        # Note: This would need actual key loading from file
+        print("ECDSA signing requires private key loading from file")
+        print("Message to sign:", args.input)
+        # ecdsa_digital_signature.ecdsa_sign_bytes(message, private_key)
+    
+    elif args.operation == "verify":
+        if not args.key or not args.signature:
+            print("ECDSA verification requires --key (public key) and --signature arguments")
+            return
+        
+        message = args.input.encode()
+        print("ECDSA verification requires public key and signature loading from files")
+        print("Message to verify:", args.input)
+        print("Signature file:", args.signature)
+        # ecdsa_digital_signature.ecdsa_verify_message(public_key, signature, message)
+
+# Function to handle RSA signature operations
+def handle_rsa_signature_operations():
+    if not args.operation or not args.input:
+        print("RSA signature operations require --operation and --input arguments")
+        return
+    
+    if args.operation == "sign":
+        if not args.key:
+            print("RSA signing requires --key argument (private key)")
+            return
+        
+        message = args.input.encode()
+        
+        # Note: This would need actual key loading from file
+        print("RSA signing requires private key loading from file")
+        print("Message to sign:", args.input)
+        # signature = rsa_digital_signature.RSA_sign_hex(message, private_key)
+        # print(f"Signature: {signature}")
+    
+    elif args.operation == "verify":
+        if not args.key or not args.signature:
+            print("RSA verification requires --key (public key) and --signature arguments")
+            return
+        
+        message = args.input.encode()
+        print("RSA verification requires public key and signature loading from files")
+        print("Message to verify:", args.input)
+        print("Signature file:", args.signature)
+        # rsa_digital_signature.RSA_verify_message(public_key, signature, message)
+
 # Function to handle cryptographic operations based on the main function argument
 def handle_cryptographic_operations():
     function = args.function.lower()
@@ -467,12 +527,10 @@ def handle_cryptographic_operations():
         handle_hash_operations()
     
     elif function == "ecdsa":
-        print("ECDSA digital signature operations available")
-        # Add ECDSA specific operations when needed
+        handle_ecdsa_signature_operations()
     
     elif function == "rsa_signature":
-        print("RSA digital signature operations available")
-        # Add RSA signature specific operations when needed
+        handle_rsa_signature_operations()
     
     else:
         print(f"Unknown function: {function}")
@@ -486,9 +544,9 @@ if __name__ == "__main__":
     
     # Check for key creation operations
     elif any([args.aes_key, args.blowfish_key, args.chacha20_key, 
-              args.rsa_private_key, args.rsa_public_key, 
-              args.ecc_private_key, args.ecc_public_key,
-              args.ecdsa_private_key, args.ecdsa_public_key]):
+            args.rsa_private_key, args.rsa_public_key, 
+            args.ecc_private_key, args.ecc_public_key,
+            args.ecdsa_private_key, args.ecdsa_public_key]):
         handle_key_creation()
     
     # Handle cryptographic operations
