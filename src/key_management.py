@@ -228,3 +228,124 @@ def handle_key_management(args, loaded_key):
     elif args.delete_key:
         print(f"Deleting key: {args.delete_key}")
         key_manager.delete_key(args.delete_key)
+
+# Function to handle key creation
+def handle_key_creation(args):
+    bit_size = int(args.bit_size) if args.bit_size else 256
+    
+    if args.aes_key:
+        print(f"Creating AES key with {bit_size} bits")
+        aes_key = key_manager.create_aes_key(bit_size)
+        if aes_key:
+            print(f"AES key created: {aes_key.hex()}")
+            # Save the key
+            key_manager.save_key("aes_key", aes_key.hex(), "symetric")
+    
+    elif args.blowfish_key:
+        print(f"Creating Blowfish key with {bit_size} bits")
+        blowfish_key = key_manager.create_blowfish_key(bit_size)
+        if blowfish_key:
+            print(f"Blowfish key created: {blowfish_key.hex()}")
+            # Save the key
+            key_manager.save_key("blowfish_key", blowfish_key.hex(), "symetric")
+    
+    elif args.chacha20_key:
+        print(f"Creating ChaCha20 key with {bit_size} bits")
+        chacha20_key = key_manager.create_ChaCha20_key(bit_size)
+        if chacha20_key:
+            print(f"ChaCha20 key created: {chacha20_key.hex()}")
+            # Save the key
+            key_manager.save_key("chacha20_key", chacha20_key.hex(), "symetric")
+    
+    elif args.rsa_private_key:
+        print("Creating RSA private key")
+        rsa_private_key, rsa_private_pem = key_manager.create_rsa_private_key()
+        print("RSA private key created")
+        # Save the private key
+        key_manager.save_key("rsa_private_key", rsa_private_pem.decode(), "private")
+        print("RSA private key saved to keys folder")
+    
+    elif args.rsa_public_key:
+        print("Creating RSA public key")
+        if args.key:  # If private key file is provided
+            try:
+                # Load private key from file
+                with open(args.key, 'r') as f:
+                    private_key_pem = f.read()
+                # Load the private key object
+                private_key = key_manager.load_rsa_private_key_from_pem(private_key_pem)
+                if private_key:
+                    # Create public key from private key
+                    rsa_public_key, rsa_public_pem = key_manager.create_rsa_public_key(private_key)
+                    print("RSA public key created successfully")
+                    # Save the public key
+                    key_manager.save_key("rsa_public_key", rsa_public_pem.decode(), "public")
+                    print("RSA public key saved to keys folder")
+                else:
+                    print("Failed to load RSA private key from file")
+            except FileNotFoundError:
+                print(f"Private key file not found: {args.key}")
+        else:
+            print("RSA public key creation requires --key argument with private key file path")
+    
+    elif args.ecc_private_key:
+        print("Creating ECC private key")
+        ecc_private_key, ecc_private_pem = key_manager.create_ecc_private_key()
+        print("ECC private key created")
+        # Save the private key
+        key_manager.save_key("ecc_private_key", ecc_private_pem.decode(), "private")
+        print("ECC private key saved to keys folder")
+    
+    elif args.ecc_public_key:
+        print("Creating ECC public key")
+        if args.key:  # If private key file is provided
+            try:
+                # Load private key from file
+                with open(args.key, 'r') as f:
+                    private_key_pem = f.read()
+                # Load the private key object
+                private_key = key_manager.load_ecc_private_key_from_pem(private_key_pem)
+                if private_key:
+                    # Create public key from private key
+                    ecc_public_key, ecc_public_pem = key_manager.create_ecc_public_key(private_key)
+                    print("ECC public key created successfully")
+                    # Save the public key
+                    key_manager.save_key("ecc_public_key", ecc_public_pem.decode(), "public")
+                    print("ECC public key saved to keys folder")
+                else:
+                    print("Failed to load ECC private key from file")
+            except FileNotFoundError:
+                print(f"Private key file not found: {args.key}")
+        else:
+            print("ECC public key creation requires --key argument with private key file path")
+    
+    elif args.ecdsa_private_key:
+        print("Creating ECDSA private key")
+        ecdsa_private_key, ecdsa_private_pem = key_manager.create_ecdsa_private_key()
+        print("ECDSA private key created")
+        # Save the private key
+        key_manager.save_key("ecdsa_private_key", ecdsa_private_pem.decode(), "private")
+        print("ECDSA private key saved to keys folder")
+    
+    elif args.ecdsa_public_key:
+        print("Creating ECDSA public key")
+        if args.key:  # If private key file is provided
+            try:
+                # Load private key from file
+                with open(args.key, 'r') as f:
+                    private_key_pem = f.read()
+                # Load the private key object
+                private_key = key_manager.load_ecdsa_private_key_from_pem(private_key_pem)
+                if private_key:
+                    # Create public key from private key
+                    ecdsa_public_key, ecdsa_public_pem = key_manager.create_ecdsa_public_key(private_key)
+                    print("ECDSA public key created successfully")
+                    # Save the public key
+                    key_manager.save_key("ecdsa_public_key", ecdsa_public_pem.decode(), "public")
+                    print("ECDSA public key saved to keys folder")
+                else:
+                    print("Failed to load ECDSA private key from file")
+            except FileNotFoundError:
+                print(f"Private key file not found: {args.key}")
+        else:
+            print("ECDSA public key creation requires --key argument with private key file path")
