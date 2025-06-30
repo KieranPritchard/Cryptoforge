@@ -75,4 +75,28 @@
 - `--output-format`: hex or bytes (for hashes)
 - `--bit-size`: Key size in bits (default: 256)
 
+## Key Usage Behavior
+
+For all cryptographic operations (encryption, decryption, signing, verification, etc.), you can provide a key using the `--key` argument. **If you do not provide the `--key` argument, the program will automatically use the key that was most recently loaded with the `--load-key` option during this execution.**
+
+- If neither `--key` nor a loaded key is available, the operation will fail with an error message.
+- This makes it easier to perform multiple operations after loading a key, without needing to specify `--key` each time.
+
+### Example Usage
+
+1. **Load a key:**
+   ```sh
+   python Cryptoforge.py aes --load-key my_aes_key.key
+   ```
+2. **Encrypt a file using the loaded key (no --key needed):**
+   ```sh
+   python Cryptoforge.py aes --operation encrypt --input plaintext.txt --iv <iv-hex>
+   ```
+3. **Or, specify a key directly:**
+   ```sh
+   python Cryptoforge.py aes --operation encrypt --input plaintext.txt --key <key-hex> --iv <iv-hex>
+   ```
+
+**Note:** The fallback to the loaded key applies to all supported cryptographic functions, including AES, Blowfish, ChaCha20, ECDSA, and RSA operations.
+
 ## Licenses

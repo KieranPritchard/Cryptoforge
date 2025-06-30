@@ -230,28 +230,31 @@ def handle_key_creation():
 
 # Function to handle AES operations
 def handle_aes_operations():
+    global loaded_key
     if not args.operation or not args.input:
         print("AES operations require --operation and --input arguments")
         return
     
+    # Use args.key if provided, else fallback to loaded_key
+    key = args.key if args.key else loaded_key
+    if not key or not args.iv:
+        print("AES encryption/decryption requires --key (or loaded key) and --iv arguments")
+        return
+    
     if args.operation == "encrypt":
-        if not args.key or not args.iv:
-            print("AES encryption requires --key and --iv arguments")
-            return
-        
         # Read input
         with open(args.input, 'rb') as f:
             data = f.read()
         
         # Convert key and IV from hex if needed
-        key = bytes.fromhex(args.key) if len(args.key) % 2 == 0 else args.key.encode()
+        key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
         iv = bytes.fromhex(args.iv) if len(args.iv) % 2 == 0 else args.iv.encode()
         
         # Pad data
         padded_data = aes_cipher.padding(data)
         
         # Encrypt
-        ciphertext = aes_cipher.CBC_mode_plaintext_encryption(padded_data, key, iv)
+        ciphertext = aes_cipher.CBC_mode_plaintext_encryption(padded_data, key_bytes, iv)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.encrypted"
@@ -260,20 +263,16 @@ def handle_aes_operations():
         print(f"Encrypted data written to {output_file}")
     
     elif args.operation == "decrypt":
-        if not args.key or not args.iv:
-            print("AES decryption requires --key and --iv arguments")
-            return
-        
         # Read input
         with open(args.input, 'rb') as f:
             data = f.read()
         
         # Convert key and IV from hex if needed
-        key = bytes.fromhex(args.key) if len(args.key) % 2 == 0 else args.key.encode()
+        key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
         iv = bytes.fromhex(args.iv) if len(args.iv) % 2 == 0 else args.iv.encode()
         
         # Decrypt
-        plaintext = aes_cipher.CBC_mode_ciphertext_decryption(data, key, iv)
+        plaintext = aes_cipher.CBC_mode_ciphertext_decryption(data, key_bytes, iv)
         
         # Unpad
         unpadded_data = aes_cipher.unpadder(plaintext)
@@ -286,24 +285,27 @@ def handle_aes_operations():
 
 # Function to handle Blowfish operations
 def handle_blowfish_operations():
+    global loaded_key
     if not args.operation or not args.input:
         print("Blowfish operations require --operation and --input arguments")
         return
     
+    # Use args.key if provided, else fallback to loaded_key
+    key = args.key if args.key else loaded_key
+    if not key:
+        print("Blowfish encryption/decryption requires --key (or loaded key) argument")
+        return
+    
     if args.operation == "encrypt":
-        if not args.key:
-            print("Blowfish encryption requires --key argument")
-            return
-        
         # Read input
         with open(args.input, 'r') as f:
             data = f.read()
         
         # Convert key from hex if needed
-        key = bytes.fromhex(args.key) if len(args.key) % 2 == 0 else args.key.encode()
+        key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
         
         # Encrypt
-        ciphertext = blowfish_cipher.cbc_plaintext_encryption(key, data)
+        ciphertext = blowfish_cipher.cbc_plaintext_encryption(key_bytes, data)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.encrypted"
@@ -312,19 +314,15 @@ def handle_blowfish_operations():
         print(f"Encrypted data written to {output_file}")
     
     elif args.operation == "decrypt":
-        if not args.key:
-            print("Blowfish decryption requires --key argument")
-            return
-        
         # Read input
         with open(args.input, 'rb') as f:
             data = f.read()
         
         # Convert key from hex if needed
-        key = bytes.fromhex(args.key) if len(args.key) % 2 == 0 else args.key.encode()
+        key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
         
         # Decrypt
-        plaintext = blowfish_cipher.cbc_ciphertext_decryption(key, data)
+        plaintext = blowfish_cipher.cbc_ciphertext_decryption(key_bytes, data)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.decrypted"
@@ -334,13 +332,20 @@ def handle_blowfish_operations():
 
 # Function to handle ChaCha20 operations
 def handle_chacha20_operations():
+    global loaded_key
     if not args.operation or not args.input:
         print("ChaCha20 operations require --operation and --input arguments")
         return
     
+    # Use args.key if provided, else fallback to loaded_key
+    key = args.key if args.key else loaded_key
+    if not key:
+        print("ChaCha20 encryption/decryption requires --key (or loaded key) argument")
+        return
+    
     if args.operation == "encrypt":
-        if not args.key or not args.nonce:
-            print("ChaCha20 encryption requires --key and --nonce arguments")
+        if not args.nonce:
+            print("ChaCha20 encryption requires --nonce argument")
             return
         
         # Read input
@@ -348,11 +353,11 @@ def handle_chacha20_operations():
             data = f.read()
         
         # Convert key and nonce from hex if needed
-        key = bytes.fromhex(args.key) if len(args.key) % 2 == 0 else args.key.encode()
+        key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
         nonce = bytes.fromhex(args.nonce) if len(args.nonce) % 2 == 0 else args.nonce.encode()
         
         # Encrypt
-        ciphertext = chacha20_cipher.ChaCha20_plaintext_encryption(key, nonce, data)
+        ciphertext = chacha20_cipher.ChaCha20_plaintext_encryption(key_bytes, nonce, data)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.encrypted"
@@ -361,10 +366,6 @@ def handle_chacha20_operations():
         print(f"Encrypted data written to {output_file}")
     
     elif args.operation == "decrypt":
-        if not args.key:
-            print("ChaCha20 decryption requires --key argument")
-            return
-        
         # Read input
         with open(args.input, 'rb') as f:
             data = f.read()
@@ -374,10 +375,10 @@ def handle_chacha20_operations():
         ciphertext = data[16:]
         
         # Convert key from hex if needed
-        key = bytes.fromhex(args.key) if len(args.key) % 2 == 0 else args.key.encode()
+        key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
         
         # Decrypt
-        plaintext = chacha20_cipher.ChaCha20_ciphertext_decryption(key, nonce, ciphertext)
+        plaintext = chacha20_cipher.ChaCha20_ciphertext_decryption(key_bytes, nonce, ciphertext)
         
         # Write output
         output_file = args.output if args.output else f"{args.input}.decrypted"
@@ -528,60 +529,60 @@ def handle_hash_operations():
 
 # Function to handle ECDSA signature operations
 def handle_ecdsa_signature_operations():
+    global loaded_key
     if not args.operation or not args.input:
         print("ECDSA signature operations require --operation and --input arguments")
         return
     
+    # Use args.key if provided, else fallback to loaded_key
+    key = args.key if args.key else loaded_key
+    if not key:
+        print("ECDSA signing/verifying requires --key (or loaded key) argument (private/public key)")
+        return
+    
     if args.operation == "sign":
-        if not args.key:
-            print("ECDSA signing requires --key argument (private key)")
-            return
-        
         # For now, we'll use a simple message
         message = args.input.encode()
-        
-        # Note: This would need actual key loading from file
-        print("ECDSA signing requires private key loading from file")
+        print("ECDSA signing requires private key loading from file or loaded key")
         print("Message to sign:", args.input)
         # ecdsa_digital_signature.ecdsa_sign_bytes(message, private_key)
     
     elif args.operation == "verify":
-        if not args.key or not args.signature:
-            print("ECDSA verification requires --key (public key) and --signature arguments")
+        if not args.signature:
+            print("ECDSA verification requires --signature argument")
             return
-        
         message = args.input.encode()
-        print("ECDSA verification requires public key and signature loading from files")
+        print("ECDSA verification requires public key and signature loading from files or loaded key")
         print("Message to verify:", args.input)
         print("Signature file:", args.signature)
         # ecdsa_digital_signature.ecdsa_verify_message(public_key, signature, message)
 
 # Function to handle RSA signature operations
 def handle_rsa_signature_operations():
+    global loaded_key
     if not args.operation or not args.input:
         print("RSA signature operations require --operation and --input arguments")
         return
     
+    # Use args.key if provided, else fallback to loaded_key
+    key = args.key if args.key else loaded_key
+    if not key:
+        print("RSA signing/verifying requires --key (or loaded key) argument (private/public key)")
+        return
+    
     if args.operation == "sign":
-        if not args.key:
-            print("RSA signing requires --key argument (private key)")
-            return
-        
         message = args.input.encode()
-        
-        # Note: This would need actual key loading from file
-        print("RSA signing requires private key loading from file")
+        print("RSA signing requires private key loading from file or loaded key")
         print("Message to sign:", args.input)
         # signature = rsa_digital_signature.RSA_sign_hex(message, private_key)
         # print(f"Signature: {signature}")
     
     elif args.operation == "verify":
-        if not args.key or not args.signature:
-            print("RSA verification requires --key (public key) and --signature arguments")
+        if not args.signature:
+            print("RSA verification requires --signature argument")
             return
-        
         message = args.input.encode()
-        print("RSA verification requires public key and signature loading from files")
+        print("RSA verification requires public key and signature loading from files or loaded key")
         print("Message to verify:", args.input)
         print("Signature file:", args.signature)
         # rsa_digital_signature.RSA_verify_message(public_key, signature, message)
