@@ -79,37 +79,6 @@ args = parser.parse_args()
 # Global variable to store loaded key
 loaded_key = None
 
-# Function to handle key management operations
-def handle_key_management():
-    global loaded_key
-    
-    if args.save_key and args.new_key_name and args.key_type:
-        # Saves the actual made key data
-        print(f"Saving key '{args.new_key_name}' of type '{args.key_type}'")
-        if loaded_key:
-            key_manager.save_key(args.new_key_name, loaded_key, args.key_type)
-        else:
-            print("No key loaded to save")
-    
-    elif args.load_key:
-        # loads a key from
-        print(f"Loading key: {args.load_key}")
-        loaded_key = key_manager.load_key(args.load_key)
-        print(f"Loaded key from: {loaded_key}")
-    
-    elif args.list_keys:
-        #Lists the keys from the specified folder
-        print("Listing keys in key folder:")
-        key_manager.list_keys()
-    
-    elif args.rename_key and args.old_name and args.new_name:
-        print(f"Renaming key from '{args.old_name}' to '{args.new_name}'")
-        key_manager.rename_key(args.old_name, args.new_name)
-    
-    elif args.delete_key:
-        print(f"Deleting key: {args.delete_key}")
-        key_manager.delete_key(args.delete_key)
-
 # Function to handle key creation
 def handle_key_creation():
     bit_size = int(args.bit_size) if args.bit_size else 256
@@ -689,7 +658,7 @@ def handle_cryptographic_operations():
 if __name__ == "__main__":
     # Check for key management operations first
     if any([args.save_key, args.load_key, args.list_keys, args.rename_key, args.delete_key]):
-        handle_key_management()
+        src.key_management.handle_key_management(args, loaded_key)
     
     # Check for key creation operations
     elif any([args.aes_key, args.blowfish_key, args.chacha20_key, 
