@@ -605,7 +605,7 @@ def handle_ecdsa_signature_operations():
         message = args.input.encode()
         print("ECDSA signing requires private key loading from file or loaded key")
         print("Message to sign:", args.input)
-        # ecdsa_digital_signature.ecdsa_sign_bytes(message, private_key)
+        ecdsa_digital_signature.ecdsa_sign_bytes(message, private_key)
     
     elif args.operation == "verify":
         if not args.signature:
@@ -615,7 +615,7 @@ def handle_ecdsa_signature_operations():
         print("ECDSA verification requires public key and signature loading from files or loaded key")
         print("Message to verify:", args.input)
         print("Signature file:", args.signature)
-        # ecdsa_digital_signature.ecdsa_verify_message(public_key, signature, message)
+        ecdsa_digital_signature.ecdsa_verify_message(public_key, signature, message)
 
 # Function to handle RSA signature operations
 def handle_rsa_signature_operations():
@@ -634,8 +634,8 @@ def handle_rsa_signature_operations():
         message = args.input.encode()
         print("RSA signing requires private key loading from file or loaded key")
         print("Message to sign:", args.input)
-        # signature = rsa_digital_signature.RSA_sign_hex(message, private_key)
-        # print(f"Signature: {signature}")
+        signature = rsa_digital_signature.RSA_sign_hex(message, private_key)
+        print(f"Signature: {signature}")
     
     elif args.operation == "verify":
         if not args.signature:
@@ -645,7 +645,7 @@ def handle_rsa_signature_operations():
         print("RSA verification requires public key and signature loading from files or loaded key")
         print("Message to verify:", args.input)
         print("Signature file:", args.signature)
-        # rsa_digital_signature.RSA_verify_message(public_key, signature, message)
+        rsa_digital_signature.RSA_verify_message(public_key, signature, message)
 
 # Function to handle cryptographic operations based on the main function argument
 def handle_cryptographic_operations():
