@@ -32,14 +32,20 @@
 #### AES Operations
 1. **AES Encrypt:** `aes --operation encrypt --input <file> --key <key> --iv <iv> [--output <file>]`
 2. **AES Decrypt:** `aes --operation decrypt --input <file> --key <key> --iv <iv> [--output <file>]`
+3. **AES Encrypt Plaintext:** `aes --operation encrypt --plaintext --input <string> --key <key> --iv <iv> [--output <file>]`
+4. **AES Decrypt Plaintext:** `aes --operation decrypt --plaintext --input <hex_string> --key <key> --iv <iv> [--output <file>]`
 
 #### Blowfish Operations
 1. **Blowfish Encrypt:** `blowfish --operation encrypt --input <file> --key <key> [--output <file>]`
 2. **Blowfish Decrypt:** `blowfish --operation decrypt --input <file> --key <key> [--output <file>]`
+3. **Blowfish Encrypt Plaintext:** `blowfish --operation encrypt --plaintext --input <string> --key <key> [--output <file>]`
+4. **Blowfish Decrypt Plaintext:** `blowfish --operation decrypt --plaintext --input <hex_string> --key <key> [--output <file>]`
 
 #### ChaCha20 Operations
 1. **ChaCha20 Encrypt:** `chacha20 --operation encrypt --input <file> --key <key> --nonce <nonce> [--output <file>]`
 2. **ChaCha20 Decrypt:** `chacha20 --operation decrypt --input <file> --key <key> [--output <file>]`
+3. **ChaCha20 Encrypt Plaintext:** `chacha20 --operation encrypt --plaintext --input <string> --key <key> --nonce <nonce> [--output <file>]`
+4. **ChaCha20 Decrypt Plaintext:** `chacha20 --operation decrypt --plaintext --input <hex_string> --key <key> [--output <file>]`
 
 #### Hash Operations (SHA-2, SHA-3, Blake2)
 1. **SHA-2 Hash:** `sha200 --input <file_or_text> --hash-type <sha224|sha256|sha384|sha512> [--output <file>] [--output-format <hex|bytes>]`
@@ -74,6 +80,7 @@
 - `--hash-type`: Hash algorithm type
 - `--output-format`: hex or bytes (for hashes)
 - `--bit-size`: Key size in bits (default: 256)
+- `--plaintext`: Treat `--input` as a plaintext string instead of a file for encryption/decryption operations. When set, the program will encrypt/decrypt the string directly and print the result (or save to `--output` if specified). Use this for direct string encryption/decryption.
 
 ## Key Usage Behavior
 
@@ -100,3 +107,29 @@ For all cryptographic operations (encryption, decryption, signing, verification,
 **Note:** The fallback to the loaded key applies to all supported cryptographic functions, including AES, Blowfish, ChaCha20, ECDSA, and RSA operations.
 
 ## Licenses
+
+## Plaintext Encryption/Decryption Examples
+
+### AES Example
+```sh
+# Encrypt a string
+python Cryptoforge.py aes --operation encrypt --plaintext --input "hello world" --iv <iv-hex>
+# Decrypt a hex string
+python Cryptoforge.py aes --operation decrypt --plaintext --input <hex-ciphertext> --iv <iv-hex>
+```
+
+### Blowfish Example
+```sh
+# Encrypt a string
+python Cryptoforge.py blowfish --operation encrypt --plaintext --input "hello world"
+# Decrypt a hex string
+python Cryptoforge.py blowfish --operation decrypt --plaintext --input <hex-ciphertext>
+```
+
+### ChaCha20 Example
+```sh
+# Encrypt a string
+python Cryptoforge.py chacha20 --operation encrypt --plaintext --input "hello world" --nonce <nonce-hex>
+# Decrypt a hex string
+python Cryptoforge.py chacha20 --operation decrypt --plaintext --input <hex-ciphertext>
+```

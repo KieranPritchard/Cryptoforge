@@ -72,6 +72,7 @@ parser.add_argument("--message", type=str, help="Message for signing/verificatio
 parser.add_argument("--signature", type=str, help="Signature file path")
 parser.add_argument("--hash-type", type=str, help="Hash type (sha224, sha256, sha384, sha512, sha3_224, sha3_256, sha3_384, sha3_512, blake2s, blake2b)")
 parser.add_argument("--output-format", type=str, choices=["hex", "bytes"], default="hex", help="Output format for hashes")
+parser.add_argument("--plaintext", action="store_true", help="Treat --input as a plaintext string instead of a file for encryption/decryption operations.")
 
 args = parser.parse_args()
 
@@ -242,9 +243,11 @@ def handle_aes_operations():
         return
     
     if args.operation == "encrypt":
-        # Read input
-        with open(args.input, 'rb') as f:
-            data = f.read()
+        if args.plaintext:
+            data = args.input.encode()
+        else:
+            with open(args.input, 'rb') as f:
+                data = f.read()
         
         # Convert key and IV from hex if needed
         key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
@@ -257,15 +260,25 @@ def handle_aes_operations():
         ciphertext = aes_cipher.CBC_mode_plaintext_encryption(padded_data, key_bytes, iv)
         
         # Write output
-        output_file = args.output if args.output else f"{args.input}.encrypted"
-        with open(output_file, 'wb') as f:
-            f.write(ciphertext)
-        print(f"Encrypted data written to {output_file}")
+        if args.plaintext:
+            if args.output:
+                with open(args.output, 'wb') as f:
+                    f.write(ciphertext)
+                print(f"Encrypted data written to {args.output}")
+            else:
+                print(f"Encrypted (hex): {ciphertext.hex()}")
+        else:
+            output_file = args.output if args.output else f"{args.input}.encrypted"
+            with open(output_file, 'wb') as f:
+                f.write(ciphertext)
+            print(f"Encrypted data written to {output_file}")
     
     elif args.operation == "decrypt":
-        # Read input
-        with open(args.input, 'rb') as f:
-            data = f.read()
+        if args.plaintext:
+            data = bytes.fromhex(args.input) if all(c in '0123456789abcdefABCDEF' for c in args.input) and len(args.input) % 2 == 0 else args.input.encode()
+        else:
+            with open(args.input, 'rb') as f:
+                data = f.read()
         
         # Convert key and IV from hex if needed
         key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
@@ -278,10 +291,18 @@ def handle_aes_operations():
         unpadded_data = aes_cipher.unpadder(plaintext)
         
         # Write output
-        output_file = args.output if args.output else f"{args.input}.decrypted"
-        with open(output_file, 'w') as f:
-            f.write(unpadded_data)
-        print(f"Decrypted data written to {output_file}")
+        if args.plaintext:
+            if args.output:
+                with open(args.output, 'w') as f:
+                    f.write(unpadded_data)
+                print(f"Decrypted data written to {args.output}")
+            else:
+                print(f"Decrypted: {unpadded_data}")
+        else:
+            output_file = args.output if args.output else f"{args.input}.decrypted"
+            with open(output_file, 'w') as f:
+                f.write(unpadded_data)
+            print(f"Decrypted data written to {output_file}")
 
 # Function to handle Blowfish operations
 def handle_blowfish_operations():
@@ -297,9 +318,11 @@ def handle_blowfish_operations():
         return
     
     if args.operation == "encrypt":
-        # Read input
-        with open(args.input, 'r') as f:
-            data = f.read()
+        if args.plaintext:
+            data = args.input
+        else:
+            with open(args.input, 'r') as f:
+                data = f.read()
         
         # Convert key from hex if needed
         key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
@@ -308,15 +331,25 @@ def handle_blowfish_operations():
         ciphertext = blowfish_cipher.cbc_plaintext_encryption(key_bytes, data)
         
         # Write output
-        output_file = args.output if args.output else f"{args.input}.encrypted"
-        with open(output_file, 'wb') as f:
-            f.write(ciphertext)
-        print(f"Encrypted data written to {output_file}")
+        if args.plaintext:
+            if args.output:
+                with open(args.output, 'wb') as f:
+                    f.write(ciphertext)
+                print(f"Encrypted data written to {args.output}")
+            else:
+                print(f"Encrypted (hex): {ciphertext.hex()}")
+        else:
+            output_file = args.output if args.output else f"{args.input}.encrypted"
+            with open(output_file, 'wb') as f:
+                f.write(ciphertext)
+            print(f"Encrypted data written to {output_file}")
     
     elif args.operation == "decrypt":
-        # Read input
-        with open(args.input, 'rb') as f:
-            data = f.read()
+        if args.plaintext:
+            data = bytes.fromhex(args.input) if all(c in '0123456789abcdefABCDEF' for c in args.input) and len(args.input) % 2 == 0 else args.input.encode()
+        else:
+            with open(args.input, 'rb') as f:
+                data = f.read()
         
         # Convert key from hex if needed
         key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
@@ -325,10 +358,18 @@ def handle_blowfish_operations():
         plaintext = blowfish_cipher.cbc_ciphertext_decryption(key_bytes, data)
         
         # Write output
-        output_file = args.output if args.output else f"{args.input}.decrypted"
-        with open(output_file, 'w') as f:
-            f.write(plaintext)
-        print(f"Decrypted data written to {output_file}")
+        if args.plaintext:
+            if args.output:
+                with open(args.output, 'w') as f:
+                    f.write(plaintext)
+                print(f"Decrypted data written to {args.output}")
+            else:
+                print(f"Decrypted: {plaintext}")
+        else:
+            output_file = args.output if args.output else f"{args.input}.decrypted"
+            with open(output_file, 'w') as f:
+                f.write(plaintext)
+            print(f"Decrypted data written to {output_file}")
 
 # Function to handle ChaCha20 operations
 def handle_chacha20_operations():
@@ -347,10 +388,11 @@ def handle_chacha20_operations():
         if not args.nonce:
             print("ChaCha20 encryption requires --nonce argument")
             return
-        
-        # Read input
-        with open(args.input, 'rb') as f:
-            data = f.read()
+        if args.plaintext:
+            data = args.input.encode()
+        else:
+            with open(args.input, 'rb') as f:
+                data = f.read()
         
         # Convert key and nonce from hex if needed
         key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
@@ -360,15 +402,25 @@ def handle_chacha20_operations():
         ciphertext = chacha20_cipher.ChaCha20_plaintext_encryption(key_bytes, nonce, data)
         
         # Write output
-        output_file = args.output if args.output else f"{args.input}.encrypted"
-        with open(output_file, 'wb') as f:
-            f.write(ciphertext)
-        print(f"Encrypted data written to {output_file}")
+        if args.plaintext:
+            if args.output:
+                with open(args.output, 'wb') as f:
+                    f.write(ciphertext)
+                print(f"Encrypted data written to {args.output}")
+            else:
+                print(f"Encrypted (hex): {ciphertext.hex()}")
+        else:
+            output_file = args.output if args.output else f"{args.input}.encrypted"
+            with open(output_file, 'wb') as f:
+                f.write(ciphertext)
+            print(f"Encrypted data written to {output_file}")
     
     elif args.operation == "decrypt":
-        # Read input
-        with open(args.input, 'rb') as f:
-            data = f.read()
+        if args.plaintext:
+            data = bytes.fromhex(args.input) if all(c in '0123456789abcdefABCDEF' for c in args.input) and len(args.input) % 2 == 0 else args.input.encode()
+        else:
+            with open(args.input, 'rb') as f:
+                data = f.read()
         
         # Extract nonce from data
         nonce = data[:16]
@@ -381,10 +433,18 @@ def handle_chacha20_operations():
         plaintext = chacha20_cipher.ChaCha20_ciphertext_decryption(key_bytes, nonce, ciphertext)
         
         # Write output
-        output_file = args.output if args.output else f"{args.input}.decrypted"
-        with open(output_file, 'wb') as f:
-            f.write(plaintext)
-        print(f"Decrypted data written to {output_file}")
+        if args.plaintext:
+            if args.output:
+                with open(args.output, 'wb') as f:
+                    f.write(plaintext)
+                print(f"Decrypted data written to {args.output}")
+            else:
+                print(f"Decrypted: {plaintext}")
+        else:
+            output_file = args.output if args.output else f"{args.input}.decrypted"
+            with open(output_file, 'wb') as f:
+                f.write(plaintext)
+            print(f"Decrypted data written to {output_file}")
 
 # Function to handle hash operations
 def handle_hash_operations():
