@@ -10,7 +10,7 @@
 
 ### Key Management Commands
 
-1. **Save Key:** `--save-key <key_name> --new-key-name <name> --key-type <type>`
+1. **Save Key:** `--save-key <key_data> --new-key-name <name> --key-type <type>`
 2. **Load Key:** `--load-key <key_name>`
 3. **List Keys:** `--list-keys`
 4. **Rename Key:** `--rename-key --old-name <old_name> --new-name <new_name>`
