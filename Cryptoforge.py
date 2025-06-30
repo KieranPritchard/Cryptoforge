@@ -42,23 +42,23 @@ parser.add_argument("--key-type", type=str, help="specifies type of key to save.
 # load key arguements
 parser.add_argument("--load-key", type=str, help="function that loads key from config defined folder.")
 # list key arguements
-parser.add_argument("--list-keys", type=str, help="lists keys in the key folder.")
+parser.add_argument("--list-keys", action="store_true", help="lists keys in the key folder.")
 #rename key arguements
-parser.add_argument("--rename-key")
+parser.add_argument("--rename-key", action="store_true", help="flag to trigger key renaming")
 parser.add_argument("--old-name", type=str, help="old name of the key to rename.")
 parser.add_argument("--new-name", type=str, help="new name of the key to rename.")
 # delete key arguements
 parser.add_argument("--delete-key", type=str, help="specifies key to delete.")
 # key creation
-parser.add_argument("--aes-key")
-parser.add_argument("--blowfish-key")
-parser.add_argument("--chacha20-key")
-parser.add_argument("--rsa-private-key")
-parser.add_argument("--rsa-public-key")
-parser.add_argument("--ecc-private-key")
-parser.add_argument("--ecc-public-key")
-parser.add_argument("--ecdsa-private-key")
-parser.add_argument("--ecdsa-public-key")
+parser.add_argument("--aes-key", action="store_true", help="flag to create AES key")
+parser.add_argument("--blowfish-key", action="store_true", help="flag to create Blowfish key")
+parser.add_argument("--chacha20-key", action="store_true", help="flag to create ChaCha20 key")
+parser.add_argument("--rsa-private-key", action="store_true", help="flag to create RSA private key")
+parser.add_argument("--rsa-public-key", action="store_true", help="flag to create RSA public key")
+parser.add_argument("--ecc-private-key", action="store_true", help="flag to create ECC private key")
+parser.add_argument("--ecc-public-key", action="store_true", help="flag to create ECC public key")
+parser.add_argument("--ecdsa-private-key", action="store_true", help="flag to create ECDSA private key")
+parser.add_argument("--ecdsa-public-key", action="store_true", help="flag to create ECDSA public key")
 parser.add_argument("--bit-size")
 parser.add_argument("--nonce")
 
