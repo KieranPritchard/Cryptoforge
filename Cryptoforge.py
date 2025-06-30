@@ -84,7 +84,7 @@ def handle_key_management():
     global loaded_key
     
     if args.save_key and args.new_key_name and args.key_type:
-        # This would need the actual key data to save
+        # Saves the actual made key data
         print(f"Saving key '{args.new_key_name}' of type '{args.key_type}'")
         if loaded_key:
             key_manager.save_key(args.new_key_name, loaded_key, args.key_type)
@@ -92,11 +92,13 @@ def handle_key_management():
             print("No key loaded to save")
     
     elif args.load_key:
+        # loads a key from
         print(f"Loading key: {args.load_key}")
-        loaded_key = key_manager.load_symetric_key(args.load_key)
+        loaded_key = key_manager.load_key(args.load_key)
         print(f"Loaded key from: {loaded_key}")
     
     elif args.list_keys:
+        #Lists the keys from the specified folder
         print("Listing keys in key folder:")
         key_manager.list_keys()
     
@@ -256,7 +258,7 @@ def handle_aes_operations():
         # Pad data
         padded_data = aes_cipher.padding(data)
         
-        # Encrypt
+        # Encrypts the data
         ciphertext = aes_cipher.CBC_mode_plaintext_encryption(padded_data, key_bytes, iv)
         
         # Write output
@@ -605,7 +607,7 @@ def handle_ecdsa_signature_operations():
         message = args.input.encode()
         print("ECDSA signing requires private key loading from file or loaded key")
         print("Message to sign:", args.input)
-        ecdsa_digital_signature.ecdsa_sign_bytes(message, private_key)
+        ecdsa_digital_signature.ecdsa_sign_bytes(args.input, args.key)
     
     elif args.operation == "verify":
         if not args.signature:
@@ -615,7 +617,7 @@ def handle_ecdsa_signature_operations():
         print("ECDSA verification requires public key and signature loading from files or loaded key")
         print("Message to verify:", args.input)
         print("Signature file:", args.signature)
-        ecdsa_digital_signature.ecdsa_verify_message(public_key, signature, message)
+        ecdsa_digital_signature.ecdsa_verify_message(args.key, args.signature, args.input)
 
 # Function to handle RSA signature operations
 def handle_rsa_signature_operations():
@@ -634,7 +636,7 @@ def handle_rsa_signature_operations():
         message = args.input.encode()
         print("RSA signing requires private key loading from file or loaded key")
         print("Message to sign:", args.input)
-        signature = rsa_digital_signature.RSA_sign_hex(message, private_key)
+        signature = rsa_digital_signature.RSA_sign_hex(args.input, args.key)
         print(f"Signature: {signature}")
     
     elif args.operation == "verify":
@@ -645,7 +647,7 @@ def handle_rsa_signature_operations():
         print("RSA verification requires public key and signature loading from files or loaded key")
         print("Message to verify:", args.input)
         print("Signature file:", args.signature)
-        rsa_digital_signature.RSA_verify_message(public_key, signature, message)
+        rsa_digital_signature.RSA_verify_message(args.key, args.signature, args.input)
 
 # Function to handle cryptographic operations based on the main function argument
 def handle_cryptographic_operations():

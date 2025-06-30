@@ -25,7 +25,7 @@ class key_management:
             key_file.write(key_to_save)
             key_file.close()
 
-    def load_symetric_key(self, key_to_load):
+    def load_key(self, key_to_load):
         for key in os.listdir(self.key_folder):
             if key == key_to_load:
                 key_path = os.path.join(self.key_folder, key_to_load)
