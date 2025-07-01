@@ -2,7 +2,11 @@
 
 ## Project Description
 
+This project is a comprehensive cryptography command line utility designed to provide a suite of cryptographic algorithms and tools for secure data processing and management. The utility includes implementations of various encryption, decryption, hashing, and digital signature algorithms, making it a versatile toolkit for beggineers.
+
 ### Objective
+
+To create a simple to use cryptography tool; Which I can then use to in encryption, hash, and use digital signatures and learn about how cryptography works and is used. I made this to provide a simpler way of using cryptography with simpler commands compared to OpenSSL, it was also made to automate part of the process Openssl makes you perform. By working on this project the aim is to learn about cryptography further and also slowly build a tool which myself and possibly others can use in place of OpenSSL.
 
 ### Technology and Tools Used
 - Python 3
