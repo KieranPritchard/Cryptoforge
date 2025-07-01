@@ -79,36 +79,6 @@ args = parser.parse_args()
 # Global variable to store loaded key
 loaded_key = None
 
-# Function to handle RSA signature operations
-def handle_rsa_signature_operations():
-    global loaded_key
-    if not args.operation or not args.input:
-        print("RSA signature operations require --operation and --input arguments")
-        return
-    
-    # Use args.key if provided, else fallback to loaded_key
-    key = args.key if args.key else loaded_key
-    if not key:
-        print("RSA signing/verifying requires --key (or loaded key) argument (private/public key)")
-        return
-    
-    if args.operation == "sign":
-        message = args.input.encode()
-        print("RSA signing requires private key loading from file or loaded key")
-        print("Message to sign:", args.input)
-        signature = rsa_digital_signature.RSA_sign_hex(args.input, args.key)
-        print(f"Signature: {signature}")
-    
-    elif args.operation == "verify":
-        if not args.signature:
-            print("RSA verification requires --signature argument")
-            return
-        message = args.input.encode()
-        print("RSA verification requires public key and signature loading from files or loaded key")
-        print("Message to verify:", args.input)
-        print("Signature file:", args.signature)
-        rsa_digital_signature.RSA_verify_message(args.key, args.signature, args.input)
-
 # Function to handle cryptographic operations based on the main function argument
 def handle_cryptographic_operations():
     function = args.function.lower()
