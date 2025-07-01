@@ -6,50 +6,42 @@ class ChaCha20:
     def __init__(self):
         pass
 
-    def ChaCha20_plaintext_encryption(key,nonce,plaintext):
+    def ChaCha20_plaintext_encryption(self, key, nonce, plaintext):
         ChaCha20_cipher_algorithm = algorithms.ChaCha20(key,nonce)
         ChaCha20_cipher = Cipher(ChaCha20_cipher_algorithm, mode=None, backend=default_backend())
-
         encryptor = ChaCha20_cipher.encryptor()
         ciphertext = encryptor.update(plaintext)
         nonce_and_ciphertext = nonce+ciphertext
-
         return nonce_and_ciphertext
     
-    def ChaCha20_ciphertext_decryption(key,nonce,ciphertext):
+    def ChaCha20_ciphertext_decryption(self, key, nonce, ciphertext):
+        # Always extract a 16-byte nonce
         nonce = ciphertext[:16]
         ciphertext = ciphertext[16:]
-
-        ChaCha20_cipher_algorithm = algorithms.ChaCha20(key,nonce)
+        ChaCha20_cipher_algorithm = algorithms.ChaCha20(key, nonce)
         ChaCha20_cipher = Cipher(ChaCha20_cipher_algorithm, mode=None, backend=default_backend())
-
         decryptor = ChaCha20_cipher.decryptor()
         plaintext = decryptor.update(ciphertext)
-
         return plaintext
     
-    def ChaCha20_file_encryption(key,nonce, file):
+    def ChaCha20_file_encryption(self, key, nonce, file):
         ChaCha20_cipher_algorithm = algorithms.ChaCha20(key,nonce)
         ChaCha20_cipher = Cipher(ChaCha20_cipher_algorithm, mode=None, backend=default_backend())
         encryptor = ChaCha20_cipher.encryptor()
-
         file_to_encrypt = open(file, "rb")
         file_contents = file_to_encrypt.read()
         encrypted_contents = encryptor.update(file_contents)
         file_to_encrypt.write(nonce + encrypted_contents)
         file_to_encrypt.close()
 
-    def ChaCha20_file_decryption(key,nonce, file):
+    def ChaCha20_file_decryption(self, key, nonce, file):
         file_to_decrypt = open(file, "rb")
         file_contents = file_to_decrypt.read()
-
         nonce = file_contents[:16]
         decrypted_contents = file_contents[16:]
-
         ChaCha20_cipher_algorithm = algorithms.ChaCha20(key,nonce)
         ChaCha20_cipher = Cipher(ChaCha20_cipher_algorithm, mode=None, backend=default_backend())
         decryptor = ChaCha20_cipher.decryptor()
-
         decrypted_contents = decryptor.update(decrypted_contents)
         file_to_decrypt.write(decrypted_contents)
         file_to_decrypt.close()
@@ -105,15 +97,11 @@ def handle_chacha20_operations(args, loaded_key):
             with open(args.input, 'rb') as f:
                 data = f.read()
         
-        # Extract nonce from data
-        nonce = data[:16]
-        ciphertext = data[16:]
-        
         # Convert key from hex if needed
         key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
         
-        # Decrypt
-        plaintext = chacha20_cipher.ChaCha20_ciphertext_decryption(key_bytes, nonce, ciphertext)
+        # Decrypt (let the method extract nonce and ciphertext)
+        plaintext = chacha20_cipher.ChaCha20_ciphertext_decryption(key_bytes, None, data)
         
         # Write output
         if args.plaintext:

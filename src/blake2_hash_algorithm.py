@@ -4,52 +4,52 @@ class Blake2:
     def __init__(self):
         pass
 
-    def blake2s_plaintext_hash_bytes(plaintext):
+    def blake2s_plaintext_hash_bytes(self, plaintext):
         blake2s_object = hashlib.blake2s()
         blake2s_object.update(plaintext)
         byte_digest = blake2s_object.digest()
         return byte_digest
     
-    def blake2s_plaintext_hash_hex(plaintext):
+    def blake2s_plaintext_hash_hex(self, plaintext):
         blake2s_object = hashlib.blake2s()
         blake2s_object.update(plaintext)
         hex_digest = blake2s_object.hexdigest()
         return hex_digest
     
-    def blake2s_file_hash_bytes(file):
+    def blake2s_file_hash_bytes(self, file):
         file_to_hash = open(file, "rb")
         data = file_to_hash.read()
         file_to_hash.close()
         hash_result_bytes = hashlib.blake2s(data).digest()
         return hash_result_bytes
     
-    def blake2s_file_hash_hex(file):
+    def blake2s_file_hash_hex(self, file):
         file_to_hash = open(file, "rb")
         data = file_to_hash.read()
         file_to_hash.close()
         hash_result_hex = hashlib.blake2s(data).hexdigest()
         return hash_result_hex
     
-    def blake2b_plaintext_hash_bytes(plaintext):
+    def blake2b_plaintext_hash_bytes(self, plaintext):
         blake2b_object = hashlib.blake2b()
         blake2b_object.update(plaintext)
         byte_digest = blake2b_object.digest()
         return byte_digest
     
-    def blake2b_plaintext_hash_hex(plaintext):
+    def blake2b_plaintext_hash_hex(self, plaintext):
         blake2b_object = hashlib.blake2b()
         blake2b_object.update(plaintext)
         hex_digest = blake2b_object.hexdigest()
         return hex_digest
     
-    def blake2b_file_hash_bytes(file):
+    def blake2b_file_hash_bytes(self, file):
         file_to_hash = open(file, "rb")
         data = file_to_hash.read()
         file_to_hash.close()
         hash_result_bytes = hashlib.blake2b(data).digest()
         return hash_result_bytes
     
-    def blake2b_file_hash_hex(file):
+    def blake2b_file_hash_hex(self, file):
         file_to_hash = open(file, "rb")
         data = file_to_hash.read()
         file_to_hash.close()
@@ -104,11 +104,12 @@ def handle_blake2_hash_operations(args):
     
     # Output result
     if args.output:
-        with open(args.output, 'w') as f:
-            if output_format == "hex":
+        if output_format == "hex":
+            with open(args.output, 'w') as f:
                 f.write(result)
-            else:
-                f.write(result.hex())
+        else:
+            with open(args.output, 'wb') as f:
+                f.write(result)
         print(f"Hash written to {args.output}")
     else:
         if output_format == "hex":

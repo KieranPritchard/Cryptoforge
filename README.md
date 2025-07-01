@@ -5,16 +5,19 @@
 ### Objective
 
 ### Technology and Tools Used
+- Python 3
+- cryptography library
+- argparse
 
 ## How to Use the Project
 
 ### Key Management Commands
 
-1. **Save Key:** `--save-key <key_data> --new-key-name <name> --key-type <type>`
-2. **Load Key:** `--load-key <key_name>`
-3. **List Keys:** `--list-keys`
-4. **Rename Key:** `--rename-key --old-name <old_name> --new-name <new_name>`
-5. **Delete Key:** `--delete-key <key_name>`
+1. **Save Key:** `keymgmt --save-key <key_data> --new-key-name <name> --key-type <type>`
+2. **Load Key:** `keymgmt --load-key <key_name>`
+3. **List Keys:** `keymgmt --list-keys`
+4. **Rename Key:** `keymgmt --rename-key --old-name <old_name> --new-name <new_name>`
+5. **Delete Key:** `keymgmt --delete-key <key_name>`
 
 ### Key Creation Commands
 1. **Create AES Key:** `--aes-key [--bit-size <size>]`
@@ -53,10 +56,12 @@
 3. **Blake2 Hash:** `blake2 --input <file_or_text> --hash-type <blake2s|blake2b> [--output <file>] [--output-format <hex|bytes>]`
 
 #### Digital Signature Operations
-1. **ECDSA Sign:** `ecdsa --operation sign --input <message> --key <private_key>`
-2. **ECDSA Verify:** `ecdsa --operation verify --input <message> --key <public_key> --signature <signature_file>`
-3. **RSA Sign:** `rsa_signature --operation sign --input <message> --key <private_key>`
-4. **RSA Verify:** `rsa_signature --operation verify --input <message> --key <public_key> --signature <signature_file>`
+1. **ECDSA Sign:** `ecdsa --operation sign --input <message> --key <private_key> --output <signature_file>`
+2. **ECDSA Verify:** `ecdsa --operation verify --input <message> --key <public_key_or_private_key> --signature <signature_file>`
+3. **RSA Sign:** `rsa_signature --operation sign --input <message> --key <private_key> --output <signature_file>`
+4. **RSA Verify:** `rsa_signature --operation verify --input <message> --key <public_key_or_private_key> --signature <signature_file>`
+
+**Note:** For verification, you can provide either a public key or a private key PEM file (the public key will be derived automatically if a private key is provided).
 
 ### Main Function Categories
 - `aes` - AES encryption/decryption
@@ -73,7 +78,7 @@
 - `--operation`: encrypt, decrypt, hash, sign, verify
 - `--input`: Input data or file path
 - `--output`: Output file path
-- `--key`: Key for encryption/decryption/signing
+- `--key`: Key for encryption/decryption/signing (can be a string or file path)
 - `--iv`: Initialization vector (for AES)
 - `--nonce`: Nonce (for ChaCha20)
 - `--signature`: Signature file path
@@ -88,12 +93,13 @@ For all cryptographic operations (encryption, decryption, signing, verification,
 
 - If neither `--key` nor a loaded key is available, the operation will fail with an error message.
 - This makes it easier to perform multiple operations after loading a key, without needing to specify `--key` each time.
+- For digital signatures, the `--key` argument can be a PEM file path (private or public key). The program will automatically load and use the correct key object.
 
 ### Example Usage
 
 1. **Load a key:**
    ```sh
-   python Cryptoforge.py aes --load-key my_aes_key.key
+   python Cryptoforge.py aes keymgmt --load-key my_aes_key.key
    ```
 2. **Encrypt a file using the loaded key (no --key needed):**
    ```sh
@@ -103,33 +109,27 @@ For all cryptographic operations (encryption, decryption, signing, verification,
    ```sh
    python Cryptoforge.py aes --operation encrypt --input plaintext.txt --key <key-hex> --iv <iv-hex>
    ```
+4. **Sign a file and output the signature:**
+   ```sh
+   python Cryptoforge.py rsa_signature --operation sign --input message.txt --key my_rsa_private.pem --output message.sig
+   ```
+5. **Verify a signature:**
+   ```sh
+   python Cryptoforge.py rsa_signature --operation verify --input message.txt --key my_rsa_private.pem --signature message.sig
+   ```
 
 **Note:** The fallback to the loaded key applies to all supported cryptographic functions, including AES, Blowfish, ChaCha20, ECDSA, and RSA operations.
 
+## Troubleshooting
+
+- **TypeError: ... takes 1 positional argument but 2 were given**
+  - Ensure all class methods use `self` as the first parameter.
+- **AttributeError: 'str' object has no attribute 'sign' or 'verify'**
+  - Make sure you are passing a loaded key object, not a file path string. The program now automatically loads PEM keys if a file path is provided.
+- **UnboundLocalError: cannot access local variable 'result'**
+  - This is fixed in the latest version; all hash handlers now set `result` or print an error.
+- **ValueError: nonce must be 128-bits (16 bytes)**
+  - Ensure the nonce for ChaCha20 is exactly 16 bytes (32 hex characters).
+
 ## Licenses
 
-## Plaintext Encryption/Decryption Examples
-
-### AES Example
-```sh
-# Encrypt a string
-python Cryptoforge.py aes --operation encrypt --plaintext --input "hello world" --iv <iv-hex>
-# Decrypt a hex string
-python Cryptoforge.py aes --operation decrypt --plaintext --input <hex-ciphertext> --iv <iv-hex>
-```
-
-### Blowfish Example
-```sh
-# Encrypt a string
-python Cryptoforge.py blowfish --operation encrypt --plaintext --input "hello world"
-# Decrypt a hex string
-python Cryptoforge.py blowfish --operation decrypt --plaintext --input <hex-ciphertext>
-```
-
-### ChaCha20 Example
-```sh
-# Encrypt a string
-python Cryptoforge.py chacha20 --operation encrypt --plaintext --input "hello world" --nonce <nonce-hex>
-# Decrypt a hex string
-python Cryptoforge.py chacha20 --operation decrypt --plaintext --input <hex-ciphertext>
-```

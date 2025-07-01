@@ -198,9 +198,8 @@ class key_management:
         return public_key, public_key_pem
     
 
-key_manager =  key_management()
 # Function to handle key management operations
-def handle_key_management(args, loaded_key):
+def handle_key_management(args, loaded_key, key_manager):
     
     if args.save_key and args.new_key_name and args.key_type:
         # Saves the actual made key data
@@ -230,7 +229,7 @@ def handle_key_management(args, loaded_key):
         key_manager.delete_key(args.delete_key)
 
 # Function to handle key creation
-def handle_key_creation(args):
+def handle_key_creation(args, key_manager):
     bit_size = int(args.bit_size) if args.bit_size else 256
     
     if args.aes_key:

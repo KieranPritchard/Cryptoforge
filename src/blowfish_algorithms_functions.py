@@ -1,14 +1,13 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.primitives.asymmetric import padding
 import os
 
 class Blowfish:
     def __init__(self):
         pass
 
-    def cbc_plaintext_encryption(key, plaintext):
+    def cbc_plaintext_encryption(self, key, plaintext):
         iv = os.urandom(8)
 
         cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
@@ -21,7 +20,7 @@ class Blowfish:
 
         return iv + ciphertext
     
-    def cbc_ciphertext_decryption(key,ciphertext):
+    def cbc_ciphertext_decryption(self, key, ciphertext):
         iv = ciphertext[:8]
         ciphertext = ciphertext[8:]
 
@@ -36,7 +35,7 @@ class Blowfish:
 
         return plaintext
     
-    def cbc_file_encryption(key, file):
+    def cbc_file_encryption(self, key, file):
         iv = os.urandom(8)
 
         cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
@@ -50,7 +49,7 @@ class Blowfish:
 
         file.write(iv + padded_file)
 
-    def cbc_file_decryption(key, file):
+    def cbc_file_decryption(self, key, file):
         file = open(file,"rb")
         file_contents = file.read()
 

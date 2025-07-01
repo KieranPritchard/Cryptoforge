@@ -103,7 +103,7 @@ def handle_cryptographic_operations(args, loaded_key):
         src.sha_200_hash_functions.handle_sha200_hash_operations(args)
     
     elif function == "sha300":
-        src.sha_200_hash_functions.handle_sha200_hash_operations(args)
+        src.sha_300_hash_functions.handle_sha300_hash_operations(args)
     
     elif function == "ecdsa":
         src.ecdsa_digital_signature.handle_ecdsa_signature_operations(args, loaded_key)
@@ -119,14 +119,14 @@ def handle_cryptographic_operations(args, loaded_key):
 if __name__ == "__main__":
     # Check for key management operations first
     if any([args.save_key, args.load_key, args.list_keys, args.rename_key, args.delete_key]):
-        src.key_management.handle_key_management(args, loaded_key)
+        src.key_management.handle_key_management(args, loaded_key, key_manager)
     
     # Check for key creation operations
     elif any([args.aes_key, args.blowfish_key, args.chacha20_key, 
             args.rsa_private_key, args.rsa_public_key, 
             args.ecc_private_key, args.ecc_public_key,
             args.ecdsa_private_key, args.ecdsa_public_key]):
-        src.key_management.handle_key_creation(args)
+        src.key_management.handle_key_creation(args, key_manager)
     
     # Handle cryptographic operations
     else:
