@@ -134,6 +134,3 @@ For all cryptographic operations (encryption, decryption, signing, verification,
   - This is fixed in the latest version; all hash handlers now set `result` or print an error.
 - **ValueError: nonce must be 128-bits (16 bytes)**
   - Ensure the nonce for ChaCha20 is exactly 16 bytes (32 hex characters).
-
-## Licenses
-
