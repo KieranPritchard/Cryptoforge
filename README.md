@@ -63,7 +63,7 @@
 - `blowfish` - Blowfish encryption/decryption
 - `chacha20` - ChaCha20 encryption/decryption
 - `blake2` - Blake2 hashing
-- `rsa` - RSA operations (placeholder)
+- `rsa` - RSA operations
 - `sha200` - SHA-2 hashing
 - `sha300` - SHA-3 hashing
 - `ecdsa` - ECDSA digital signatures
