@@ -56,8 +56,7 @@ class ChaCha20:
 
 chacha20_cipher = ChaCha20()
 # Function to handle ChaCha20 operations
-def handle_chacha20_operations(args):
-    global loaded_key
+def handle_chacha20_operations(args, loaded_key):
     if not args.operation or not args.input:
         print("ChaCha20 operations require --operation and --input arguments")
         return

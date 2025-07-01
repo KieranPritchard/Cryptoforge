@@ -89,8 +89,7 @@ class RSA_digital_signatures:
 rsa_digital_signature = RSA_digital_signatures()
 
 # Function to handle RSA signature operations
-def handle_rsa_signature_operations(args):
-    global loaded_key
+def handle_rsa_signature_operations(args, loaded_key):
     if not args.operation or not args.input:
         print("RSA signature operations require --operation and --input arguments")
         return

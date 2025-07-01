@@ -52,8 +52,7 @@ class AES:
 aes_cipher = AES()
 
 # Function to handle AES operations
-def handle_aes_operations(args):
-    global loaded_key
+def handle_aes_operations(args, loaded_key):
     if not args.operation or not args.input:
         print("AES operations require --operation and --input arguments")
         return

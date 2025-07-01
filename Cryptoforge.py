@@ -1,4 +1,5 @@
 import argparse
+from ast import arg
 import json
 import os
 # my custom imports for the functions.
@@ -80,36 +81,35 @@ args = parser.parse_args()
 loaded_key = None
 
 # Function to handle cryptographic operations based on the main function argument
-def handle_cryptographic_operations():
+def handle_cryptographic_operations(args, loaded_key):
     function = args.function.lower()
     
     if function == "aes":
-        src.aes_algorithm_functions.handle_aes_operations()
+        src.aes_algorithm_functions.handle_aes_operations(args,loaded_key)
     
     elif function == "blowfish":
-        src.blowfish_algorithms_functions.handle_blowfish_operations()
+        src.blowfish_algorithms_functions.handle_blowfish_operations(args, loaded_key)
     
     elif function == "chacha20":
-        src.chacha20_algorithm_fuctions.handle_chacha20_operations()
+        src.chacha20_algorithm_fuctions.handle_chacha20_operations(args, loaded_key)
     
     elif function == "blake2":
-        handle_hash_operations()
+        src.blake2_hash_algorithm.handle_blake2_hash_operations(args)
     
     elif function == "rsa":
-        print("RSA operations available")
-        # Add RSA specific operations when needed
+        src.rsa_algorithm_fuctions.handle_rsa_operations(args, loaded_key)
     
     elif function == "sha200":
-        handle_hash_operations()
+        src.sha_200_hash_functions.handle_sha200_hash_operations(args)
     
     elif function == "sha300":
-        handle_hash_operations()
+        src.sha_200_hash_functions.handle_sha200_hash_operations(args)
     
     elif function == "ecdsa":
-        handle_ecdsa_signature_operations()
+        src.ecdsa_digital_signature.handle_ecdsa_signature_operations(args, loaded_key)
     
     elif function == "rsa_signature":
-        handle_rsa_signature_operations()
+        src.rsa_digital_signatures.handle_rsa_signature_operations(args, loaded_key)
     
     else:
         print(f"Unknown function: {function}")
@@ -130,4 +130,4 @@ if __name__ == "__main__":
     
     # Handle cryptographic operations
     else:
-        handle_cryptographic_operations()
+        handle_cryptographic_operations(args,loaded_key)

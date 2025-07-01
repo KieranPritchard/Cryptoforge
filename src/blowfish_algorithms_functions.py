@@ -71,8 +71,7 @@ class Blowfish:
 blowfish_cipher = Blowfish()
 
 # Function to handle Blowfish operations
-def handle_blowfish_operations(args):
-    global loaded_key
+def handle_blowfish_operations(args, loaded_key):
     if not args.operation or not args.input:
         print("Blowfish operations require --operation and --input arguments")
         return

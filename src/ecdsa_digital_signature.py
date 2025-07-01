@@ -55,8 +55,7 @@ class ecdsa_digital_signature:
 
 
 # Function to handle ECDSA signature operations
-def handle_ecdsa_signature_operations(args):
-    global loaded_key
+def handle_ecdsa_signature_operations(args, loaded_key):
     if not args.operation or not args.input:
         print("ECDSA signature operations require --operation and --input arguments")
         return
