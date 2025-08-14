@@ -11,17 +11,21 @@ class AES:
     def CBC_mode_plaintext_encryption(self, plaintext, key, iv):
         padder = sym_padding.PKCS7(128).padder()
         padded_plaintext = padder.update(plaintext) + padder.finalize()
+        
         CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
         CBC_mode_encryptor = CBC_mode_cipher.encryptor()
         ciphertext = CBC_mode_encryptor.update(padded_plaintext) + CBC_mode_encryptor.finalize()
+        
         return ciphertext
     
     def CBC_mode_ciphertext_decryption(self, ciphertext, key, iv):
         CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
         CBC_mode_decryptor = CBC_mode_cipher.decryptor()
+        
         plaintext = CBC_mode_decryptor.update(ciphertext) + CBC_mode_decryptor.finalize()
         unpadder = sym_padding.PKCS7(128).unpadder()
         unpadded_plaintext = unpadder.update(plaintext) + unpadder.finalize()
+        
         return unpadded_plaintext
     
     def CBC_mode_file_encryption(self, file, key, iv):
@@ -48,17 +52,21 @@ class AES:
     def CFB_mode_plaintext_encryption(self, plaintext, key, iv):
         padder = sym_padding.PKCS7(128).padder()
         padded_plaintext = padder.update(plaintext) + padder.finalize()
+        
         CFB_mode_cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
         CFB_mode_encryptor = CFB_mode_cipher.encryptor()
         ciphertext = CFB_mode_encryptor.update(padded_plaintext) + CFB_mode_encryptor.finalize()
+        
         return ciphertext
     
     def CFB_mode_ciphertext_decryption(self, ciphertext, key, iv):
         CFB_mode_cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
         CFB_mode_decryptor = CFB_mode_cipher.decryptor()
+        
         plaintext = CFB_mode_decryptor.update(ciphertext) + CFB_mode_decryptor.finalize()
         unpadder = sym_padding.PKCS7(128).unpadder()
         unpadded_plaintext = unpadder.update(plaintext) + unpadder.finalize()
+        
         return unpadded_plaintext
     
     def CFB_mode_file_encryption(self, file, key, iv):
@@ -78,6 +86,47 @@ class AES:
         with open(f"{file}", "rb") as f:
             file_contents = f.read()
         decrypted_contents = CFB_mode_decryptor.update(file_contents) + CFB_mode_decryptor.finalize()
+        with open(f"{file}", "wb") as f:
+            f.write(decrypted_contents)
+
+    # GCM mode functions
+    def GCM_mode_plaintext_encryption(self, plaintext, key, iv):
+        padder = sym_padding.PKCS7(128).padder()
+        padded_plaintext = padder.update(plaintext) + padder.finalize()
+        
+        GCM_mode_cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
+        GCM_mode_encryptor = GCM_mode_cipher.encryptor()
+        ciphertext = GCM_mode_encryptor.update(padded_plaintext) + GCM_mode_encryptor.finalize()
+        
+        return ciphertext
+    
+    def GCM_mode_ciphertext_decryption(self, ciphertext, key, iv):
+        GCM_mode_cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
+        GCM_mode_decryptor = GCM_mode_cipher.decryptor()
+        
+        plaintext = GCM_mode_decryptor.update(ciphertext) + GCM_mode_decryptor.finalize()
+        unpadder = sym_padding.PKCS7(128).unpadder()
+        unpadded_plaintext = unpadder.update(plaintext) + unpadder.finalize()
+        
+        return unpadded_plaintext
+    
+    def GCM_mode_file_encryption(self, file, key, iv):
+        GCM_mode_cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
+        GCM_mode_encryptor = GCM_mode_cipher.encryptor()
+
+        with open(f"{file}", "rb") as f:
+            file_contents = f.read()
+        encrypted_contents = GCM_mode_encryptor.update(file_contents) + GCM_mode_encryptor.finalize()
+        with open(f"{file}", "wb") as f:
+            f.write(encrypted_contents)
+
+    def GCM_mode_file_decryption(self, file, key, iv):
+        GCM_mode_cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        GCM_mode_decryptor = GCM_mode_cipher.decryptor()
+
+        with open(f"{file}", "rb") as f:
+            file_contents = f.read()
+        decrypted_contents = GCM_mode_decryptor.update(file_contents) + GCM_mode_decryptor.finalize()
         with open(f"{file}", "wb") as f:
             f.write(decrypted_contents)
 
