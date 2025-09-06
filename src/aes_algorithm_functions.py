@@ -130,6 +130,47 @@ class AES:
         with open(f"{file}", "wb") as f:
             f.write(decrypted_contents)
 
+    # CTR mode functions
+    def CTR_mode_plaintext_encryption(self, plaintext, key, iv):
+        padder = sym_padding.PKCS7(128).padder()
+        padded_plaintext = padder.update(plaintext) + padder.finalize()
+        
+        CTR_mode_cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
+        CTR_mode_encryptor = CTR_mode_cipher.encryptor()
+        ciphertext = CTR_mode_encryptor.update(padded_plaintext) + CTR_mode_encryptor.finalize()
+        
+        return ciphertext
+    
+    def CTR_mode_ciphertext_decryption(self, ciphertext, key, iv):
+        CTR_mode_cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
+        CTR_mode_decryptor = CTR_mode_cipher.decryptor()
+        
+        plaintext = CTR_mode_decryptor.update(ciphertext) + CTR_mode_decryptor.finalize()
+        unpadder = sym_padding.PKCS7(128).unpadder()
+        unpadded_plaintext = unpadder.update(plaintext) + unpadder.finalize()
+        
+        return unpadded_plaintext
+    
+    def CTR_mode_file_encryption(self, file, key, iv):
+        CTR_mode_cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
+        CTR_mode_encryptor = CTR_mode_cipher.encryptor()
+
+        with open(f"{file}", "rb") as f:
+            file_contents = f.read()
+        encrypted_contents = CTR_mode_encryptor.update(file_contents) + CTR_mode_encryptor.finalize()
+        with open(f"{file}", "wb") as f:
+            f.write(encrypted_contents)
+
+    def CTR_mode_file_decryption(self, file, key, iv):
+        CTR_mode_cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
+        CTR_mode_decryptor = CTR_mode_cipher.decryptor()
+
+        with open(f"{file}", "rb") as f:
+            file_contents = f.read()
+        decrypted_contents = CTR_mode_decryptor.update(file_contents) + CTR_mode_decryptor.finalize()
+        with open(f"{file}", "wb") as f:
+            f.write(decrypted_contents)
+
 aes_cipher = AES()
 
 # Function to handle AES operations
@@ -162,6 +203,8 @@ def handle_aes_operations(args, loaded_key):
             ciphertext = aes_cipher.CFB_mode_plaintext_encryption(data, key_bytes, iv)
         elif args.mode == "gcm":
             ciphertext = aes_cipher.GCM_mode_plaintext_encryption(data, key_bytes, iv)
+        elif args.mode == "ctr":
+            ciphertext = aes_cipher.CTR_mode_plaintext_encryption(data, key_bytes, iv)
 
         # Write output
         if args.plaintext:
