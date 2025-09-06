@@ -1,249 +1,245 @@
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding as sym_padding
-from cryptography.hazmat.primitives.asymmetric import padding as asym_padding
+import os
 
 class AES:
     def __init__(self):
         pass
-    
+
+    # -------------------
     # CBC mode functions
+    # -------------------
     def CBC_mode_plaintext_encryption(self, plaintext, key, iv):
         padder = sym_padding.PKCS7(128).padder()
         padded_plaintext = padder.update(plaintext) + padder.finalize()
-        
-        CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-        CBC_mode_encryptor = CBC_mode_cipher.encryptor()
-        ciphertext = CBC_mode_encryptor.update(padded_plaintext) + CBC_mode_encryptor.finalize()
-        
-        return ciphertext
-    
-    def CBC_mode_ciphertext_decryption(self, ciphertext, key, iv):
-        CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-        CBC_mode_decryptor = CBC_mode_cipher.decryptor()
-        
-        plaintext = CBC_mode_decryptor.update(ciphertext) + CBC_mode_decryptor.finalize()
-        unpadder = sym_padding.PKCS7(128).unpadder()
-        unpadded_plaintext = unpadder.update(plaintext) + unpadder.finalize()
-        
-        return unpadded_plaintext
-    
-    def CBC_mode_file_encryption(self, file, key, iv):
-        CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-        CBC_mode_encryptor = CBC_mode_cipher.encryptor()
 
-        with open(f"{file}", "rb") as f:
-            file_contents = f.read()
-        encrypted_contents = CBC_mode_encryptor.update(file_contents) + CBC_mode_encryptor.finalize()
-        with open(f"{file}", "wb") as f:
-            f.write(encrypted_contents)
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        ciphertext = encryptor.update(padded_plaintext) + encryptor.finalize()
+        return ciphertext
+
+    def CBC_mode_ciphertext_decryption(self, ciphertext, key, iv):
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+        padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+
+        unpadder = sym_padding.PKCS7(128).unpadder()
+        plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
+        return plaintext
+
+    def CBC_mode_file_encryption(self, file, key, iv):
+        with open(file, "rb") as f:
+            data = f.read()
+        padder = sym_padding.PKCS7(128).padder()
+        padded_data = padder.update(data) + padder.finalize()
+
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        encrypted = encryptor.update(padded_data) + encryptor.finalize()
+
+        with open(file, "wb") as f:
+            f.write(encrypted)
 
     def CBC_mode_file_decryption(self, file, key, iv):
-        CBC_mode_cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-        CBC_mode_decryptor = CBC_mode_cipher.decryptor()
+        with open(file, "rb") as f:
+            data = f.read()
 
-        with open(f"{file}", "rb") as f:
-            file_contents = f.read()
-        decrypted_contents = CBC_mode_decryptor.update(file_contents) + CBC_mode_decryptor.finalize()
-        with open(f"{file}", "wb") as f:
-            f.write(decrypted_contents)
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+        padded_plaintext = decryptor.update(data) + decryptor.finalize()
 
-    # CFB mode functions
-    def CFB_mode_plaintext_encryption(self, plaintext, key, iv):
-        padder = sym_padding.PKCS7(128).padder()
-        padded_plaintext = padder.update(plaintext) + padder.finalize()
-        
-        CFB_mode_cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
-        CFB_mode_encryptor = CFB_mode_cipher.encryptor()
-        ciphertext = CFB_mode_encryptor.update(padded_plaintext) + CFB_mode_encryptor.finalize()
-        
-        return ciphertext
-    
-    def CFB_mode_ciphertext_decryption(self, ciphertext, key, iv):
-        CFB_mode_cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
-        CFB_mode_decryptor = CFB_mode_cipher.decryptor()
-        
-        plaintext = CFB_mode_decryptor.update(ciphertext) + CFB_mode_decryptor.finalize()
         unpadder = sym_padding.PKCS7(128).unpadder()
-        unpadded_plaintext = unpadder.update(plaintext) + unpadder.finalize()
-        
-        return unpadded_plaintext
-    
-    def CFB_mode_file_encryption(self, file, key, iv):
-        CFB_mode_cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
-        CFB_mode_encryptor = CFB_mode_cipher.encryptor()
+        plaintext = unpadder.update(padded_plaintext) + unpadder.finalize()
 
-        with open(f"{file}", "rb") as f:
-            file_contents = f.read()
-        encrypted_contents = CFB_mode_encryptor.update(file_contents) + CFB_mode_encryptor.finalize()
-        with open(f"{file}", "wb") as f:
-            f.write(encrypted_contents)
+        with open(file, "wb") as f:
+            f.write(plaintext)
+
+    # -------------------
+    # CFB mode functions
+    # -------------------
+    def CFB_mode_plaintext_encryption(self, plaintext, key, iv):
+        cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        return encryptor.update(plaintext) + encryptor.finalize()
+
+    def CFB_mode_ciphertext_decryption(self, ciphertext, key, iv):
+        cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+        return decryptor.update(ciphertext) + decryptor.finalize()
+
+    def CFB_mode_file_encryption(self, file, key, iv):
+        with open(file, "rb") as f:
+            data = f.read()
+        cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        encrypted = encryptor.update(data) + encryptor.finalize()
+        with open(file, "wb") as f:
+            f.write(encrypted)
 
     def CFB_mode_file_decryption(self, file, key, iv):
-        CFB_mode_cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
-        CFB_mode_decryptor = CFB_mode_cipher.decryptor()
+        with open(file, "rb") as f:
+            data = f.read()
+        cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+        decrypted = decryptor.update(data) + decryptor.finalize()
+        with open(file, "wb") as f:
+            f.write(decrypted)
 
-        with open(f"{file}", "rb") as f:
-            file_contents = f.read()
-        decrypted_contents = CFB_mode_decryptor.update(file_contents) + CFB_mode_decryptor.finalize()
-        with open(f"{file}", "wb") as f:
-            f.write(decrypted_contents)
-
+    # -------------------
     # GCM mode functions
+    # -------------------
     def GCM_mode_plaintext_encryption(self, plaintext, key, iv):
-        padder = sym_padding.PKCS7(128).padder()
-        padded_plaintext = padder.update(plaintext) + padder.finalize()
-        
-        GCM_mode_cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
-        GCM_mode_encryptor = GCM_mode_cipher.encryptor()
-        ciphertext = GCM_mode_encryptor.update(padded_plaintext) + GCM_mode_encryptor.finalize()
-        
-        return ciphertext
-    
-    def GCM_mode_ciphertext_decryption(self, ciphertext, key, iv):
-        GCM_mode_cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
-        GCM_mode_decryptor = GCM_mode_cipher.decryptor()
-        
-        plaintext = GCM_mode_decryptor.update(ciphertext) + GCM_mode_decryptor.finalize()
-        unpadder = sym_padding.PKCS7(128).unpadder()
-        unpadded_plaintext = unpadder.update(plaintext) + unpadder.finalize()
-        
-        return unpadded_plaintext
-    
-    def GCM_mode_file_encryption(self, file, key, iv):
-        GCM_mode_cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
-        GCM_mode_encryptor = GCM_mode_cipher.encryptor()
+        cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        ciphertext = encryptor.update(plaintext) + encryptor.finalize()
+        return ciphertext, encryptor.tag
 
-        with open(f"{file}", "rb") as f:
-            file_contents = f.read()
-        encrypted_contents = GCM_mode_encryptor.update(file_contents) + GCM_mode_encryptor.finalize()
-        with open(f"{file}", "wb") as f:
-            f.write(encrypted_contents)
+    def GCM_mode_ciphertext_decryption(self, ciphertext, key, iv, tag):
+        cipher = Cipher(algorithms.AES(key), modes.GCM(iv, tag), backend=default_backend())
+        decryptor = cipher.decryptor()
+        return decryptor.update(ciphertext) + decryptor.finalize()
+
+    def GCM_mode_file_encryption(self, file, key, iv):
+        with open(file, "rb") as f:
+            data = f.read()
+        cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        encrypted = encryptor.update(data) + encryptor.finalize()
+        # Save ciphertext + tag together
+        with open(file, "wb") as f:
+            f.write(encrypted + encryptor.tag)
 
     def GCM_mode_file_decryption(self, file, key, iv):
-        GCM_mode_cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
-        GCM_mode_decryptor = GCM_mode_cipher.decryptor()
+        with open(file, "rb") as f:
+            data = f.read()
+        ciphertext, tag = data[:-16], data[-16:]
+        cipher = Cipher(algorithms.AES(key), modes.GCM(iv, tag), backend=default_backend())
+        decryptor = cipher.decryptor()
+        decrypted = decryptor.update(ciphertext) + decryptor.finalize()
+        with open(file, "wb") as f:
+            f.write(decrypted)
 
-        with open(f"{file}", "rb") as f:
-            file_contents = f.read()
-        decrypted_contents = GCM_mode_decryptor.update(file_contents) + GCM_mode_decryptor.finalize()
-        with open(f"{file}", "wb") as f:
-            f.write(decrypted_contents)
-
+    # -------------------
     # CTR mode functions
+    # -------------------
     def CTR_mode_plaintext_encryption(self, plaintext, key, iv):
-        padder = sym_padding.PKCS7(128).padder()
-        padded_plaintext = padder.update(plaintext) + padder.finalize()
-        
-        CTR_mode_cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
-        CTR_mode_encryptor = CTR_mode_cipher.encryptor()
-        ciphertext = CTR_mode_encryptor.update(padded_plaintext) + CTR_mode_encryptor.finalize()
-        
-        return ciphertext
-    
-    def CTR_mode_ciphertext_decryption(self, ciphertext, key, iv):
-        CTR_mode_cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
-        CTR_mode_decryptor = CTR_mode_cipher.decryptor()
-        
-        plaintext = CTR_mode_decryptor.update(ciphertext) + CTR_mode_decryptor.finalize()
-        unpadder = sym_padding.PKCS7(128).unpadder()
-        unpadded_plaintext = unpadder.update(plaintext) + unpadder.finalize()
-        
-        return unpadded_plaintext
-    
-    def CTR_mode_file_encryption(self, file, key, iv):
-        CTR_mode_cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
-        CTR_mode_encryptor = CTR_mode_cipher.encryptor()
+        cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        return encryptor.update(plaintext) + encryptor.finalize()
 
-        with open(f"{file}", "rb") as f:
-            file_contents = f.read()
-        encrypted_contents = CTR_mode_encryptor.update(file_contents) + CTR_mode_encryptor.finalize()
-        with open(f"{file}", "wb") as f:
-            f.write(encrypted_contents)
+    def CTR_mode_ciphertext_decryption(self, ciphertext, key, iv):
+        cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+        return decryptor.update(ciphertext) + decryptor.finalize()
+
+    def CTR_mode_file_encryption(self, file, key, iv):
+        with open(file, "rb") as f:
+            data = f.read()
+        cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+        encrypted = encryptor.update(data) + encryptor.finalize()
+        with open(file, "wb") as f:
+            f.write(encrypted)
 
     def CTR_mode_file_decryption(self, file, key, iv):
-        CTR_mode_cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
-        CTR_mode_decryptor = CTR_mode_cipher.decryptor()
+        with open(file, "rb") as f:
+            data = f.read()
+        cipher = Cipher(algorithms.AES(key), modes.CTR(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+        decrypted = decryptor.update(data) + decryptor.finalize()
+        with open(file, "wb") as f:
+            f.write(decrypted)
 
-        with open(f"{file}", "rb") as f:
-            file_contents = f.read()
-        decrypted_contents = CTR_mode_decryptor.update(file_contents) + CTR_mode_decryptor.finalize()
-        with open(f"{file}", "wb") as f:
-            f.write(decrypted_contents)
 
 aes_cipher = AES()
 
-# Function to handle AES operations
 def handle_aes_operations(args, loaded_key):
-    if not args.operation or not args.input:
-        print("AES operations require --operation and --input arguments")
+    if not args.operation or (not args.plaintext and not args.file):
+        print("AES operations require --operation and either --plaintext or --file")
         return
-    
-    # Use args.key if provided, else fallback to loaded_key
+
     key = args.key if args.key else loaded_key
     if not key or not args.iv:
-        print("AES encryption/decryption requires --key (or loaded key) and --iv arguments")
+        print("AES requires --key (or loaded key) and --iv")
         return
-    
-    if args.operation == "encrypt":
-        if args.plaintext:
-            data = args.input.encode()
-        else:
-            with open(args.input, 'rb') as f:
-                data = f.read()
-        
-        # Convert key and IV from hex if needed
-        key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
-        iv = bytes.fromhex(args.iv) if len(args.iv) % 2 == 0 else args.iv.encode()
-        
-        # Encrypts the data
-        if args.mode == "cbc":
-            ciphertext = aes_cipher.CBC_mode_plaintext_encryption(data, key_bytes, iv)
-        elif args.mode == "cfb":
-            ciphertext = aes_cipher.CFB_mode_plaintext_encryption(data, key_bytes, iv)
-        elif args.mode == "gcm":
-            ciphertext = aes_cipher.GCM_mode_plaintext_encryption(data, key_bytes, iv)
-        elif args.mode == "ctr":
-            ciphertext = aes_cipher.CTR_mode_plaintext_encryption(data, key_bytes, iv)
 
-        # Write output
-        if args.plaintext:
+    # Convert key/iv
+    key_bytes = bytes.fromhex(key) if all(c in "0123456789abcdefABCDEF" for c in key) and len(key) % 2 == 0 else key.encode()
+    iv = bytes.fromhex(args.iv) if all(c in "0123456789abcdefABCDEF" for c in args.iv) and len(args.iv) % 2 == 0 else args.iv.encode()
+
+    # ==============
+    # Plaintext mode
+    # ==============
+    if args.plaintext:
+        data = args.plaintext.encode() if args.operation == "encrypt" else (
+            bytes.fromhex(args.plaintext) if all(c in "0123456789abcdefABCDEF" for c in args.plaintext) and len(args.plaintext) % 2 == 0
+            else args.plaintext.encode()
+        )
+
+        if args.operation == "encrypt":
+            if args.mode == "cbc":
+                ciphertext = aes_cipher.CBC_mode_plaintext_encryption(data, key_bytes, iv)
+            elif args.mode == "cfb":
+                ciphertext = aes_cipher.CFB_mode_plaintext_encryption(data, key_bytes, iv)
+            elif args.mode == "gcm":
+                ciphertext, tag = aes_cipher.GCM_mode_plaintext_encryption(data, key_bytes, iv)
+                ciphertext = ciphertext + tag
+            elif args.mode == "ctr":
+                ciphertext = aes_cipher.CTR_mode_plaintext_encryption(data, key_bytes, iv)
+
             if args.output:
-                with open(args.output, 'wb') as f:
+                with open(args.output, "wb") as f:
                     f.write(ciphertext)
                 print(f"Encrypted data written to {args.output}")
             else:
                 print(f"Encrypted (hex): {ciphertext.hex()}")
-        else:
-            output_file = args.output if args.output else f"{args.input}.encrypted"
-            with open(output_file, 'wb') as f:
-                f.write(ciphertext)
-            print(f"Encrypted data written to {output_file }")
-    
-    elif args.operation == "decrypt":
-        if args.plaintext:
-            data = bytes.fromhex(args.input) if all(c in '0123456789abcdefABCDEF' for c in args.input) and len(args.input) % 2 == 0 else args.input.encode()
-        else:
-            with open(args.input, 'rb') as f:
-                data = f.read()
-        
-        # Convert key and IV from hex if needed
-        key_bytes = bytes.fromhex(key) if len(key) % 2 == 0 else key.encode()
-        iv = bytes.fromhex(args.iv) if len(args.iv) % 2 == 0 else args.iv.encode()
-        
-        # Decrypt
-        plaintext = aes_cipher.CBC_mode_ciphertext_decryption(data, key_bytes, iv)
-        
-        # Write output
-        if args.plaintext:
+
+        elif args.operation == "decrypt":
+            if args.mode == "cbc":
+                plaintext = aes_cipher.CBC_mode_ciphertext_decryption(data, key_bytes, iv)
+            elif args.mode == "cfb":
+                plaintext = aes_cipher.CFB_mode_ciphertext_decryption(data, key_bytes, iv)
+            elif args.mode == "gcm":
+                ciphertext, tag = data[:-16], data[-16:]
+                plaintext = aes_cipher.GCM_mode_ciphertext_decryption(ciphertext, key_bytes, iv, tag)
+            elif args.mode == "ctr":
+                plaintext = aes_cipher.CTR_mode_ciphertext_decryption(data, key_bytes, iv)
+
             if args.output:
-                with open(args.output, 'w') as f:
-                    f.write(plaintext)
+                with open(args.output, "w", encoding="utf-8") as f:
+                    f.write(plaintext.decode(errors="ignore"))
                 print(f"Decrypted data written to {args.output}")
             else:
-                print(f"Decrypted: {plaintext}")
-        else:
-            output_file = args.output if args.output else f"{args.input}.decrypted"
-            with open(output_file, 'w') as f:
-                f.write(plaintext)
-            print(f"Decrypted data written to {output_file}")
+                print(f"Decrypted: {plaintext.decode(errors='ignore')}")
+
+    # ===========
+    # File mode
+    # ===========
+    elif args.file:
+        infile = args.file
+        outfile = args.output if args.output else f"{infile}.{args.operation}ed"
+
+        if args.operation == "encrypt":
+            if args.mode == "cbc":
+                aes_cipher.CBC_mode_file_encryption(infile, key_bytes, iv)
+            elif args.mode == "cfb":
+                aes_cipher.CFB_mode_file_encryption(infile, key_bytes, iv)
+            elif args.mode == "gcm":
+                aes_cipher.GCM_mode_file_encryption(infile, key_bytes, iv)
+            elif args.mode == "ctr":
+                aes_cipher.CTR_mode_file_encryption(infile, key_bytes, iv)
+
+        elif args.operation == "decrypt":
+            if args.mode == "cbc":
+                aes_cipher.CBC_mode_file_decryption(infile, key_bytes, iv)
+            elif args.mode == "cfb":
+                aes_cipher.CFB_mode_file_decryption(infile, key_bytes, iv)
+            elif args.mode == "gcm":
+                aes_cipher.GCM_mode_file_decryption(infile, key_bytes, iv)
+            elif args.mode == "ctr":
+                aes_cipher.CTR_mode_file_decryption(infile, key_bytes, iv)
+
+        # Rename result
+        os.rename(infile, outfile)
+        print(f"{args.operation.capitalize()}ed file written to {outfile}")
