@@ -121,7 +121,7 @@ class AES:
             f.write(encrypted_contents)
 
     def GCM_mode_file_decryption(self, file, key, iv):
-        GCM_mode_cipher = Cipher(algorithms.AES(key), modes.CFB(iv), backend=default_backend())
+        GCM_mode_cipher = Cipher(algorithms.AES(key), modes.GCM(iv), backend=default_backend())
         GCM_mode_decryptor = GCM_mode_cipher.decryptor()
 
         with open(f"{file}", "rb") as f:
@@ -156,8 +156,13 @@ def handle_aes_operations(args, loaded_key):
         iv = bytes.fromhex(args.iv) if len(args.iv) % 2 == 0 else args.iv.encode()
         
         # Encrypts the data
-        ciphertext = aes_cipher.CBC_mode_plaintext_encryption(data, key_bytes, iv)
-        
+        if args.mode == "cbc":
+            ciphertext = aes_cipher.CBC_mode_plaintext_encryption(data, key_bytes, iv)
+        elif args.mode == "cfb":
+            ciphertext = aes_cipher.CFB_mode_plaintext_encryption(data, key_bytes, iv)
+        elif args.mode == "gcm":
+            ciphertext = aes_cipher.GCM_mode_plaintext_encryption(data, key_bytes, iv)
+
         # Write output
         if args.plaintext:
             if args.output:
@@ -170,7 +175,7 @@ def handle_aes_operations(args, loaded_key):
             output_file = args.output if args.output else f"{args.input}.encrypted"
             with open(output_file, 'wb') as f:
                 f.write(ciphertext)
-            print(f"Encrypted data written to {output_file}")
+            print(f"Encrypted data written to {output_file }")
     
     elif args.operation == "decrypt":
         if args.plaintext:
