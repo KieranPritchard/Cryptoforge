@@ -10,26 +10,20 @@ class Blowfish:
     # -------------------
     # CBC mode functions
     # -------------------
-    def cbc_plaintext_encryption(self, key, plaintext):
-        iv = os.urandom(8)
-
-        cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
-        encryptor = cipher.encryptor()
-
+    def cbc_plaintext_encryption(self, key, plaintext, iv):
         padder = padding.PKCS7(algorithms.Blowfish.block_size).padder()
         padded_plaintext = padder.update(plaintext.encode()) + padder.finalize()
+        
+        cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
 
         ciphertext = encryptor.update(padded_plaintext) + encryptor.finalize()
 
         return iv + ciphertext
     
-    def cbc_ciphertext_decryption(self, key, ciphertext):
-        iv = ciphertext[:8]
-        ciphertext = ciphertext[8:]
-
+    def cbc_ciphertext_decryption(self, key, ciphertext, iv):
         cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
         decryptor = cipher.decryptor()
-
         padded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
 
         unpadder = padding.PKCS7(algorithms.Blowfish.block_size).unpadder()
@@ -38,37 +32,31 @@ class Blowfish:
 
         return plaintext
     
-    def cbc_file_encryption(self, key, file):
-        iv = os.urandom(8)
+    def cbc_file_encryption(self, key, file, iv):
+        with open(file, "rb") as f:
+            data = f.read()
+
+        padder = padding.PKCS7(algorithms.Blowfish.block_size).padder()
+        padded_data = padder.update(data.encode()) + padder.finalize()
 
         cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
         encryptor = cipher.encryptor()
+        encrypted = encryptor.update(padded_data) + encryptor.finalize() 
 
-        file = open(file,"rb")
-        file_contents = file.read()
+        file.write(encrypted)
 
-        padder = padding.PKCS7(algorithms.Blowfish.block_size).padder()
-        padded_file = padder.update(file_contents.encode()) + padder.finalize()
-
-        file.write(iv + padded_file)
-
-    def cbc_file_decryption(self, key, file):
-        file = open(file,"rb")
-        file_contents = file.read()
-
-        iv = file_contents[:8]
-        encrypted_contents = file_contents[8:]
+    def cbc_file_decryption(self, key, file, iv):
+        with open(file, "rb") as f:
+            data = f.read()
 
         cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
         decryptor = cipher.decryptor()
-
-        padded_contents = decryptor.update(encrypted_contents) + decryptor.finalize()
+        padded_contents = decryptor.update(data) + decryptor.finalize()
 
         unpadder = padding.PKCS7(algorithms.Blowfish.block_size).unpadder()
-        file_bytes = unpadder.update(padded_contents) + unpadder.finalize()
-        decrypted_file = file_bytes.decode()
+        plaintext = unpadder.update(padded_contents) + unpadder.finalize()
 
-        file.write(decrypted_file)
+        file.write(plaintext)
 
     # -------------------
     # CFB mode functions
