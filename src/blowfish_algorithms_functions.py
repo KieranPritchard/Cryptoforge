@@ -7,6 +7,9 @@ class Blowfish:
     def __init__(self):
         pass
 
+    # -------------------
+    # CBC mode functions
+    # -------------------
     def cbc_plaintext_encryption(self, key, plaintext):
         iv = os.urandom(8)
 
@@ -66,6 +69,55 @@ class Blowfish:
         decrypted_file = file_bytes.decode()
 
         file.write(decrypted_file)
+
+    # -------------------
+    # CFB mode functions
+    # -------------------
+
+    def cfb_plaintext_encryption(self, key, plaintext, iv):
+
+        cipher = Cipher(algorithms.Blowfish(key), modes.CFB(iv), backend=default_backend())
+        encryptor = cipher.encryptor()
+
+        ciphertext = encryptor.update(plaintext) + encryptor.finalize()
+
+        return iv + ciphertext
+    
+    def cfb_ciphertext_decryption(self, key, ciphertext):
+        iv = ciphertext[:8]
+        ciphertext = ciphertext[8:]
+
+        cipher = Cipher(algorithms.Blowfish(key), modes.CFB(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+
+        coded_plaintext = decryptor.update(ciphertext) + decryptor.finalize()
+
+        plaintext = coded_plaintext.decode()
+
+        return plaintext
+    
+    def cfb_file_encryption(self, key, file, iv):
+        with open(file, "rb") as f:
+            data = f.read
+        
+        cipher = Cipher(algorithms.Blowfish(key), modes.CFB(iv), backend=default_backend())
+        
+        encryptor = cipher.encryptor()
+        encrypted = encryptor.update(data) + encryptor.finalize()
+
+        with(file, "wb") as f:
+            f.write(encrypted)
+
+    def cfb_file_decryption(self, key, file, iv):
+        with open(file, "rb") as f:
+            data = f.read()
+
+        cipher = Cipher(algorithms.Blowfish(key), modes.CFB(iv), backend=default_backend())
+        decryptor = cipher.decryptor()
+        decrypted = decryptor.update(data) + decryptor.finalize()
+
+        with open(file, "wb") as  f:
+            f.write(data)
 
 blowfish_cipher = Blowfish()
 
