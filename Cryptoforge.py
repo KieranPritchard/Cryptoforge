@@ -77,15 +77,16 @@ parser.add_argument("--plaintext", action="store_true", help="Treat --input as a
 
 args = parser.parse_args()
 
-# Global variable to store loaded key
+# Global variables
 loaded_key = None
+default_aes_mode = config_data["default_aes_mode"]
 
 # Function to handle cryptographic operations based on the main function argument
 def handle_cryptographic_operations(args, loaded_key):
     function = args.function.lower()
     
     if function == "aes":
-        src.aes_algorithm_functions.handle_aes_operations(args,loaded_key)
+        src.aes_algorithm_functions.handle_aes_operations(args,loaded_key, default_aes_mode)
     
     elif function == "blowfish":
         src.blowfish_algorithms_functions.handle_blowfish_operations(args, loaded_key)

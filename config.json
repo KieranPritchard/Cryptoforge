@@ -1,3 +1,4 @@
 {
-    "key_folder": "./keys"
+    "key_folder": "./keys",
+    "default_aes_mode": "cbc"
 }

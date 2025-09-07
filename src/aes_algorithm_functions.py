@@ -154,7 +154,7 @@ class AES:
 
 aes_cipher = AES()
 
-def handle_aes_operations(args, loaded_key):
+def handle_aes_operations(args, loaded_key, default_aes_mode):
     if not args.operation or (not args.plaintext and not args.file):
         print("AES operations require --operation and either --plaintext or --file")
         return
@@ -187,6 +187,16 @@ def handle_aes_operations(args, loaded_key):
                 ciphertext = ciphertext + tag
             elif args.mode == "ctr":
                 ciphertext = aes_cipher.CTR_mode_plaintext_encryption(data, key_bytes, iv)
+            else:
+                if default_aes_mode == "cbc":
+                    ciphertext = aes_cipher.CBC_mode_plaintext_encryption(data, key_bytes, iv)
+                elif default_aes_mode == "cfb":
+                    ciphertext = aes_cipher.CFB_mode_plaintext_encryption(data, key_bytes, iv)
+                elif default_aes_mode == "gcm":
+                    ciphertext, tag = aes_cipher.GCM_mode_plaintext_encryption(data, key_bytes, iv)
+                    ciphertext = ciphertext + tag
+                elif default_aes_mode == "ctr":
+                    ciphertext = aes_cipher.CTR_mode_plaintext_encryption(data, key_bytes, iv)
 
             if args.output:
                 with open(args.output, "wb") as f:
@@ -205,6 +215,16 @@ def handle_aes_operations(args, loaded_key):
                 plaintext = aes_cipher.GCM_mode_ciphertext_decryption(ciphertext, key_bytes, iv, tag)
             elif args.mode == "ctr":
                 plaintext = aes_cipher.CTR_mode_ciphertext_decryption(data, key_bytes, iv)
+            else: 
+                if default_aes_mode == "cbc":
+                    plaintext = aes_cipher.CBC_mode_ciphertext_decryption(data, key_bytes, iv)
+                elif default_aes_mode == "cfb":
+                    plaintext = aes_cipher.CFB_mode_ciphertext_decryption(data, key_bytes, iv)
+                elif default_aes_mode == "gcm":
+                    ciphertext, tag = data[:-16], data[-16:]
+                    plaintext = aes_cipher.GCM_mode_ciphertext_decryption(ciphertext, key_bytes, iv, tag)
+                elif default_aes_mode == "ctr":
+                    plaintext = aes_cipher.CTR_mode_ciphertext_decryption(data, key_bytes, iv)
 
             if args.output:
                 with open(args.output, "w", encoding="utf-8") as f:
@@ -229,6 +249,15 @@ def handle_aes_operations(args, loaded_key):
                 aes_cipher.GCM_mode_file_encryption(infile, key_bytes, iv)
             elif args.mode == "ctr":
                 aes_cipher.CTR_mode_file_encryption(infile, key_bytes, iv)
+            else:
+                if default_aes_mode == "cbc":
+                    aes_cipher.CBC_mode_file_encryption(infile, key_bytes, iv)
+                elif default_aes_mode == "cfb":
+                    aes_cipher.CFB_mode_file_encryption(infile, key_bytes, iv)
+                elif default_aes_mode == "gcm":
+                    aes_cipher.GCM_mode_file_encryption(infile, key_bytes, iv)
+                elif default_aes_mode == "ctr":
+                    aes_cipher.CTR_mode_file_encryption(infile, key_bytes, iv)
 
         elif args.operation == "decrypt":
             if args.mode == "cbc":
@@ -239,6 +268,15 @@ def handle_aes_operations(args, loaded_key):
                 aes_cipher.GCM_mode_file_decryption(infile, key_bytes, iv)
             elif args.mode == "ctr":
                 aes_cipher.CTR_mode_file_decryption(infile, key_bytes, iv)
+            else: 
+                if default_aes_mode == "cbc":
+                    aes_cipher.CBC_mode_file_decryption(infile, key_bytes, iv)
+                elif default_aes_mode == "cfb":
+                    aes_cipher.CFB_mode_file_decryption(infile, key_bytes, iv)
+                elif default_aes_mode == "gcm":
+                    aes_cipher.GCM_mode_file_decryption(infile, key_bytes, iv)
+                elif default_aes_mode == "ctr":
+                    aes_cipher.CTR_mode_file_decryption(infile, key_bytes, iv)
 
         # Rename result
         os.rename(infile, outfile)
