@@ -80,6 +80,7 @@ args = parser.parse_args()
 # Global variables
 loaded_key = None
 default_aes_mode = config_data["default_aes_mode"]
+default_blowfish_mode = config_data["default_blowfish_mode"]
 
 # Function to handle cryptographic operations based on the main function argument
 def handle_cryptographic_operations(args, loaded_key):
@@ -89,7 +90,7 @@ def handle_cryptographic_operations(args, loaded_key):
         src.aes_algorithm_functions.handle_aes_operations(args,loaded_key, default_aes_mode)
     
     elif function == "blowfish":
-        src.blowfish_algorithms_functions.handle_blowfish_operations(args, loaded_key)
+        src.blowfish_algorithms_functions.handle_blowfish_operations(args, loaded_key, default_blowfish_mode)
     
     elif function == "chacha20":
         src.chacha20_algorithm_fuctions.handle_chacha20_operations(args, loaded_key)

@@ -10,7 +10,7 @@ class Blowfish:
     # -------------------
     # CBC mode functions
     # -------------------
-    def cbc_plaintext_encryption(self, key, plaintext: bytes):
+    def cbc_plaintext_encryption(self, key, plaintext):
         iv = os.urandom(8)  # Blowfish block size = 64 bits
         padder = padding.PKCS7(algorithms.Blowfish.block_size).padder()
         padded_plaintext = padder.update(plaintext) + padder.finalize()
@@ -21,7 +21,7 @@ class Blowfish:
 
         return iv + ciphertext
 
-    def cbc_ciphertext_decryption(self, key, data: bytes):
+    def cbc_ciphertext_decryption(self, key, data):
         iv, ciphertext = data[:8], data[8:]
         cipher = Cipher(algorithms.Blowfish(key), modes.CBC(iv), backend=default_backend())
         decryptor = cipher.decryptor()
@@ -32,14 +32,14 @@ class Blowfish:
 
         return plaintext
 
-    def cbc_file_encryption(self, key, file: str):
+    def cbc_file_encryption(self, key, file):
         with open(file, "rb") as f:
             data = f.read()
         ciphertext = self.cbc_plaintext_encryption(key, data)
         with open(file, "wb") as f:
             f.write(ciphertext)
 
-    def cbc_file_decryption(self, key, file: str):
+    def cbc_file_decryption(self, key, file):
         with open(file, "rb") as f:
             data = f.read()
         plaintext = self.cbc_ciphertext_decryption(key, data)
@@ -49,27 +49,27 @@ class Blowfish:
     # -------------------
     # CFB mode functions
     # -------------------
-    def cfb_plaintext_encryption(self, key, plaintext: bytes):
+    def cfb_plaintext_encryption(self, key, plaintext):
         iv = os.urandom(8)
         cipher = Cipher(algorithms.Blowfish(key), modes.CFB(iv), backend=default_backend())
         encryptor = cipher.encryptor()
         ciphertext = encryptor.update(plaintext) + encryptor.finalize()
         return iv + ciphertext
 
-    def cfb_ciphertext_decryption(self, key, data: bytes):
+    def cfb_ciphertext_decryption(self, key, data):
         iv, ciphertext = data[:8], data[8:]
         cipher = Cipher(algorithms.Blowfish(key), modes.CFB(iv), backend=default_backend())
         decryptor = cipher.decryptor()
         return decryptor.update(ciphertext) + decryptor.finalize()
 
-    def cfb_file_encryption(self, key, file: str):
+    def cfb_file_encryption(self, key, file):
         with open(file, "rb") as f:
             data = f.read()
         ciphertext = self.cfb_plaintext_encryption(key, data)
         with open(file, "wb") as f:
             f.write(ciphertext)
 
-    def cfb_file_decryption(self, key, file: str):
+    def cfb_file_decryption(self, key, file):
         with open(file, "rb") as f:
             data = f.read()
         plaintext = self.cfb_ciphertext_decryption(key, data)
@@ -79,27 +79,27 @@ class Blowfish:
     # -------------------
     # CTR mode functions
     # -------------------
-    def ctr_plaintext_encryption(self, key, plaintext: bytes):
+    def ctr_plaintext_encryption(self, key, plaintext):
         iv = os.urandom(8)
         cipher = Cipher(algorithms.Blowfish(key), modes.CTR(iv), backend=default_backend())
         encryptor = cipher.encryptor()
         ciphertext = encryptor.update(plaintext) + encryptor.finalize()
         return iv + ciphertext
 
-    def ctr_ciphertext_decryption(self, key, data: bytes):
+    def ctr_ciphertext_decryption(self, key, data):
         iv, ciphertext = data[:8], data[8:]
         cipher = Cipher(algorithms.Blowfish(key), modes.CTR(iv), backend=default_backend())
         decryptor = cipher.decryptor()
         return decryptor.update(ciphertext) + decryptor.finalize()
 
-    def ctr_file_encryption(self, key, file: str):
+    def ctr_file_encryption(self, key, file):
         with open(file, "rb") as f:
             data = f.read()
         ciphertext = self.ctr_plaintext_encryption(key, data)
         with open(file, "wb") as f:
             f.write(ciphertext)
 
-    def ctr_file_decryption(self, key, file: str):
+    def ctr_file_decryption(self, key, file):
         with open(file, "rb") as f:
             data = f.read()
         plaintext = self.ctr_ciphertext_decryption(key, data)
@@ -112,7 +112,7 @@ blowfish_cipher = Blowfish()
 # -------------------
 # Operation handler
 # -------------------
-def handle_blowfish_operations(args, loaded_key):
+def handle_blowfish_operations(args, loaded_key, default_blowfish_mode):
     if not args.operation or (not args.plaintext and not args.file):
         print("Blowfish operations require --operation and either --plaintext or --file")
         return
@@ -141,7 +141,12 @@ def handle_blowfish_operations(args, loaded_key):
             elif args.mode == "ctr":
                 ciphertext = blowfish_cipher.ctr_plaintext_encryption(key_bytes, data)
             else:
-                ciphertext = blowfish_cipher.cbc_plaintext_encryption(key_bytes, data)
+                if default_blowfish_mode == "cbc":
+                    ciphertext = blowfish_cipher.cbc_plaintext_encryption(key_bytes, data)
+                elif default_blowfish_mode == "cfb":
+                    ciphertext = blowfish_cipher.cfb_plaintext_encryption(key_bytes, data)
+                elif default_blowfish_mode == "ctr":
+                    ciphertext = blowfish_cipher.ctr_plaintext_encryption(key_bytes, data)
 
             if args.output:
                 with open(args.output, "wb") as f:
@@ -158,7 +163,12 @@ def handle_blowfish_operations(args, loaded_key):
             elif args.mode == "ctr":
                 plaintext = blowfish_cipher.ctr_ciphertext_decryption(key_bytes, data)
             else:
-                plaintext = blowfish_cipher.cbc_ciphertext_decryption(key_bytes, data)
+                if default_blowfish_mode == "cbc":
+                    plaintext = blowfish_cipher.cbc_ciphertext_decryption(key_bytes, data)
+                elif default_blowfish_mode == "cfb":
+                    plaintext = blowfish_cipher.cfb_ciphertext_decryption(key_bytes, data)
+                elif default_blowfish_mode == "ctr":
+                    plaintext = blowfish_cipher.ctr_ciphertext_decryption(key_bytes, data)
 
             if args.output:
                 with open(args.output, "w", encoding="utf-8") as f:
@@ -180,7 +190,12 @@ def handle_blowfish_operations(args, loaded_key):
             elif args.mode == "ctr":
                 blowfish_cipher.ctr_file_encryption(key_bytes, infile)
             else:
-                blowfish_cipher.cbc_file_encryption(key_bytes, infile)
+                if default_blowfish_mode == "cbc":
+                    blowfish_cipher.cbc_file_encryption(key_bytes, infile)
+                elif default_blowfish_mode == "cfb":
+                    blowfish_cipher.cfb_file_encryption(key_bytes, infile)
+                elif default_blowfish_mode == "ctr":
+                    blowfish_cipher.ctr_file_encryption(key_bytes, infile)
 
         elif args.operation == "decrypt":
             if args.mode == "cbc":
@@ -190,7 +205,12 @@ def handle_blowfish_operations(args, loaded_key):
             elif args.mode == "ctr":
                 blowfish_cipher.ctr_file_decryption(key_bytes, infile)
             else:
-                blowfish_cipher.cbc_file_decryption(key_bytes, infile)
+                if default_blowfish_mode == "cbc":
+                    blowfish_cipher.cbc_file_decryption(key_bytes, infile)
+                elif default_blowfish_mode == "cfb":
+                    blowfish_cipher.cfb_file_decryption(key_bytes, infile)
+                elif default_blowfish_mode == "ctr":
+                    blowfish_cipher.ctr_file_decryption(key_bytes, infile)
 
         os.rename(infile, outfile)
         print(f"{args.operation.capitalize()}ed file written to {outfile}")

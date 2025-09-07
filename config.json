@@ -1,4 +1,5 @@
 {
     "key_folder": "./keys",
-    "default_aes_mode": "cbc"
+    "default_aes_mode": "cbc",
+    "default_blowfish_mode": "cbc"
 }
