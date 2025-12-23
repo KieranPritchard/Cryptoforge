@@ -8,7 +8,7 @@ This project is a comprehensive cryptography command line utility designed to pr
 
 ### Objective
 
-To create a simple to use cryptography tool; Which I can then use to encrypt, hash, and use digital signatures and learn about how cryptography works and is used. I made this to provide a simpler way of using cryptography with simpler commands compared to OpenSSL, it was also made to automate part of the process Openssl makes you perform. By working on this project the aim is to learn about cryptography further and also slowly build a tool which myself and possibly others can use in place of OpenSSL.
+To create a simple to use cryptography tool; Which I can then use to encrypt, hash, and use digital signatures and learn about how cryptography works and is used. I made this to provide a simpler way of using cryptography with simpler commands compared to OpenSSL, it was also made to automate part of the process Openssl makes you perform. By working on this project the aim is to learn about cryptography further and also slowly build a tool which myself and possibly others can use in place of OpenSSL. I also wanted to create something quick and easy others can use in CTF (Capture the flag challenges)
 
 ### Technology and Tools Used
 - Python 3
