@@ -1,31 +1,44 @@
-# Symmetric
-from src.symmetric.aes_cipher import AES
-from src.symmetric.blowfish_cipher import Blowfish
-from src.symmetric.chacha20_cipher import ChaCha20
+# =========================
+# Algorithm Imports
+# =========================
 
-# Hashing
-from src.hashing.blake2_hash import Blake2
-from src.hashing.sha2_hash import SHA2
-from src.hashing.sha3_hash import SHA3
+# Symmetric encryption algorithms
+from src.symmetric.aes_cipher import AES              # AES block cipher (CBC/CFB/CTR)
+from src.symmetric.blowfish_cipher import Blowfish    # Blowfish block cipher
+from src.symmetric.chacha20_cipher import ChaCha20    # ChaCha20 stream cipher
 
-# Asymmetric
-from src.asymmetric.rsa_cipher import RSA
-from src.asymmetric.ecdsa_signatures import ECDSA
-from src.asymmetric.rsa_signatures import RSADigitalSignatures
+# Hashing algorithms
+from src.hashing.blake2_hash import Blake2            # Blake2 hashing
+from src.hashing.sha2_hash import SHA2                # SHA-2 family hashing
+from src.hashing.sha3_hash import SHA3                # SHA-3 family hashing
 
-# File Integrity
-from src.hashing.file_integrity import FileIntegrityChecker
+# Asymmetric cryptography
+from src.asymmetric.rsa_cipher import RSA              # RSA encryption/decryption
+from src.asymmetric.ecdsa_signatures import ECDSA      # ECDSA digital signatures
+from src.asymmetric.rsa_signatures import RSADigitalSignatures  # RSA signatures
 
-import os
-from cryptography.hazmat.primitives import serialization
-from cryptography.exceptions import InvalidSignature
+# File integrity utilities
+from src.hashing.file_integrity import FileIntegrityChecker  # Hash-based file verification
 
+# Standard library imports
+import os                                             # File system utilities
+
+# Cryptography library helpers
+from cryptography.hazmat.primitives import serialization  # Key serialization utilities
+from cryptography.exceptions import InvalidSignature      # Signature verification error
+
+
+# =========================
+# Crypto Dispatcher
+# =========================
 
 class CryptoDispatcher:
-    def __init__(self, defaults):
-        self.defaults = defaults  # Store default encryption modes
+    """Maps function names to crypto classes and instantiates them"""
 
-        # Algorithm registry
+    def __init__(self, defaults):
+        self.defaults = defaults  # Store default crypto modes/settings
+
+        # Registry mapping CLI function names → implementation classes
         self._registry = {
             "aes": AES,
             "blowfish": Blowfish,
@@ -41,399 +54,303 @@ class CryptoDispatcher:
         }
 
     def dispatch(self, function):
-        function = function.lower()  # Normalize function name to lowercase
+        """Return a new crypto object based on function name"""
+        function = function.lower()  # Normalize input
 
-        if function not in self._registry:  # Check if function exists in registry
+        # Checks if the function is in the regstery
+        if function not in self._registry:
+            # Raises error if it does not exist
             raise ValueError(
                 f"Unknown function '{function}'. "
                 f"Available: {', '.join(self._registry.keys())}"
             )
+        return self._registry[function]()  # Instantiate requested crypto class
 
-        return self._registry[function]()  # Return new instance of the requested crypto class
 
+# =========================
+# Key Parsing Helpers
+# =========================
 
 def _parse_key(key_arg, loaded_key):
-    """Parse key from argument, loaded_key, or file"""
-    if key_arg:  # If key argument provided
-        if os.path.isfile(key_arg):  # If it's a file path, read it
+    """Resolve key from CLI argument, loaded key, or key file"""
+    if key_arg:  # Checks ley passed directly via CLI
+        if os.path.isfile(key_arg):  # Treat argument as file path
+            # Opens the file
             with open(key_arg, "r") as f:
+                # Extracts the key data
                 key_data = f.read().strip()
+            # Try hex-decoding
             try:
-                return bytes.fromhex(key_data)  # Try to parse as hex
+                # Returns an encoded key
+                return bytes.fromhex(key_data)  
             except ValueError:
-                return key_data.encode()  # Otherwise treat as raw string
-        else:  # It's a hex string or raw string
+                # Fall back to raw string
+                return key_data.encode()       
+        else:  # Key provided inline
             try:
-                return bytes.fromhex(key_arg)  # Try to parse as hex
+                # Retuns the bytes from the hexadecimal key
+                return bytes.fromhex(key_arg)
             except ValueError:
-                return key_arg.encode()  # Otherwise treat as raw string
-    elif loaded_key:  # Use loaded key if available
+                # Returns an encoded key
+                return key_arg.encode()
+
+    elif loaded_key:  # Use previously loaded key
         try:
-            return bytes.fromhex(loaded_key)  # Try to parse as hex
+            # Retuns the bytes from the hexadecimal key
+            return bytes.fromhex(loaded_key)
         except (ValueError, AttributeError):
             return loaded_key.encode() if isinstance(loaded_key, str) else loaded_key
-    return None  # No key available
+
+    return None  # No usable key found
 
 
 def _parse_hex_bytes(hex_string, byte_length=None):
-    """Parse hex string to bytes, optionally validate length"""
+    """Convert hex string to bytes and optionally validate length"""
+    # Checks if there is not a hex string
     if not hex_string:
         return None
+
+    # Trys to parse the hex string
     try:
+        # Converts the hex string into bytes
         data = bytes.fromhex(hex_string)
+        # Checks for if the byte and length data do not match the bit length
         if byte_length and len(data) != byte_length:
+            # Raises a error message
             raise ValueError(f"Expected {byte_length} bytes, got {len(data)}")
+        # Returns the data
         return data
+    # Catches a value error
     except ValueError as e:
+        # Raises value error
         raise ValueError(f"Invalid hex string: {e}")
 
 
+# =========================
+# Input / Output Helpers
+# =========================
+
 def _read_input(args):
-    """Read input from file or plaintext string"""
-    if args.plaintext:  # Treat input as plaintext string
+    """Read input either as plaintext or from a file"""
+
+    # Checks if the arguements contain plaintext
+    if args.plaintext:  # Treat input as literal text
+        # Returns the input as encoded if there is a args input
         return args.input.encode('utf-8') if args.input else None
-    else:  # Treat input as file path
+    else:  
+        # Treat input as file path
         if not args.input or not os.path.isfile(args.input):
             raise FileNotFoundError(f"Input file not found: {args.input}")
         with open(args.input, "rb") as f:
-            return f.read()
+            return f.read()  # Always read files as raw bytes
 
 
 def _write_output(data, output_path, is_text=False):
     """Write output to file or print to console"""
-    if output_path:  # Write to file
+
+    if output_path:  # Save to file
         mode = "w" if is_text else "wb"
         with open(output_path, mode) as f:
             f.write(data)
         print(f"Output written to: {output_path}")
-    else:  # Print to console
+    else:  # No output file → print result
         if isinstance(data, bytes):
-            print(data.hex())  # Print hex for bytes
+            print(data.hex())  # Print bytes as hex
         else:
-            print(data)  # Print string directly
+            print(data)
 
+
+# =========================
+# File Integrity Dispatcher
+# =========================
 
 def dispatch_file_integrity(args, integrity_checker):
-    """Handle file integrity operations"""
-    if not args.input:  # Validate input file is provided
+    """Handle file hash computation and verification"""
+
+    if not args.input:
         print("Error: --input required for file integrity operations")
-        return  # Exit if input is missing
-    
-    if not args.hash_type:  # Validate hash algorithm is specified
+        return
+
+    if not args.hash_type:
         print("Error: --hash-type required for file integrity operations")
-        return  # Exit if hash type is missing
-    
-    # Hash operation (compute hash)
-    if not args.expected_hash:  # If no expected hash, compute and display hash
+        return
+
+    # Compute file hash
+    if not args.expected_hash:
         try:
-            file_hash = integrity_checker.hash_file(args.input, args.hash_type)  # Calculate file hash
-            if args.output:  # If output file specified, save hash to file
+            file_hash = integrity_checker.hash_file(args.input, args.hash_type)
+            if args.output:
                 with open(args.output, "w") as f:
                     f.write(file_hash)
                 print(f"Hash saved to {args.output}")
-            else:  # Otherwise, print hash to console
+            else:
                 print(f"{args.hash_type.upper()}: {file_hash}")
-        except FileNotFoundError as e:
-            print(f"Error: {e}")  # Handle file not found error
-        except ValueError as e:
-            print(f"Error: {e}")  # Handle invalid hash algorithm error
-    
-    # Verify operation
-    else:  # If expected hash provided, verify file integrity
-        try:
-            is_valid = integrity_checker.verify_file(args.input, args.expected_hash, args.hash_type)  # Verify file hash matches expected
-            if is_valid:  # Hash matches - file is valid
-                print(f"✓ File integrity verified: {args.input}")
-                print(f"  Expected: {args.expected_hash}")
-                print(f"  Calculated: {integrity_checker.hash_file(args.input, args.hash_type)}")
-            else:  # Hash doesn't match - file may be corrupted
-                calculated = integrity_checker.hash_file(args.input, args.hash_type)
-                print(f"✗ File integrity check FAILED: {args.input}")
-                print(f"  Expected: {args.expected_hash}")
-                print(f"  Calculated: {calculated}")
-        except FileNotFoundError as e:
-            print(f"Error: {e}")  # Handle file not found error
-        except ValueError as e:
-            print(f"Error: {e}")  # Handle invalid hash algorithm error
+        except (FileNotFoundError, ValueError) as e:
+            print(f"Error: {e}")
 
+    # Verify file hash
+    else:
+        try:
+            is_valid = integrity_checker.verify_file(
+                args.input, args.expected_hash, args.hash_type
+            )
+
+            calculated = integrity_checker.hash_file(args.input, args.hash_type)
+
+            if is_valid:
+                print(f"✓ File integrity verified: {args.input}")
+            else:
+                print(f"✗ File integrity check FAILED: {args.input}")
+
+            print(f"  Expected:   {args.expected_hash}")
+            print(f"  Calculated: {calculated}")
+
+        except (FileNotFoundError, ValueError) as e:
+            print(f"Error: {e}")
+
+
+# =========================
+# Main Crypto Dispatcher
+# =========================
 
 def dispatch_crypto_operation(args, loaded_key, defaults):
-    """Dispatch cryptographic operations based on function name in args"""
-    dispatcher = CryptoDispatcher(defaults)  # Create dispatcher with default modes
-    
-    # Get the function name from args
-    function_name = args.function.lower() if hasattr(args, 'function') and args.function else None  # Extract and normalize function name
-    
-    if not function_name:  # Validate function name exists
+    """Route CLI requests to the correct crypto operation"""
+
+    dispatcher = CryptoDispatcher(defaults)
+
+    function_name = args.function.lower() if getattr(args, 'function', None) else None
+    if not function_name:
         print("Error: No function specified")
-        return  # Exit if no function specified
-    
-    # Handle file integrity separately
-    if function_name in ("file_integrity", "integrity"):  # Special handling for file integrity operations
-        integrity_checker = FileIntegrityChecker()  # Create file integrity checker instance
-        dispatch_file_integrity(args, integrity_checker)  # Route to file integrity handler
-        return  # Exit after handling file integrity
-    
-    # Get the crypto class instance
+        return
+
+    # Special-case file integrity operations
+    if function_name in ("file_integrity", "integrity"):
+        dispatch_file_integrity(args, FileIntegrityChecker())
+        return
+
+    # Instantiate requested crypto engine
     try:
-        crypto_instance = dispatcher.dispatch(function_name)  # Get appropriate crypto class instance from registry
-    except ValueError as e:  # Handle unknown function error
+        crypto_instance = dispatcher.dispatch(function_name)
+    except ValueError as e:
         print(f"Error: {e}")
-        return  # Exit if function not found in registry
-    
-    # Get operation type
+        return
+
+    # Determine operation type
     operation = getattr(args, 'operation', None)
     if not operation:
         print("Error: --operation required")
         return
-    
+
     operation = operation.lower()
-    
+
     try:
-        # Handle symmetric ciphers (AES, Blowfish, ChaCha20)
+        # =========================
+        # Symmetric Encryption
+        # =========================
         if function_name in ("aes", "blowfish", "chacha20"):
-            key = _parse_key(getattr(args, 'key', None), loaded_key)  # Parse key from args or loaded_key
+            key = _parse_key(getattr(args, 'key', None), loaded_key)
             if not key:
-                print("Error: --key required (or use --load-key first)")
+                print("Error: --key required")
                 return
-            
+
+            # ---------- ENCRYPT ----------
             if operation == "encrypt":
-                input_data = _read_input(args)  # Read input data
+                input_data = _read_input(args)
                 if not input_data:
                     print("Error: --input required")
                     return
-                
-                if function_name == "aes":  # AES encryption
-                    mode = getattr(args, 'mode', defaults.get('aes_mode', 'cbc')).lower()  # Get mode from args or defaults
-                    if mode == "cbc":
-                        result = crypto_instance.cbc_encrypt(input_data, key)
-                    elif mode == "cfb":
-                        result = crypto_instance.cfb_encrypt(input_data, key)
-                    elif mode == "ctr":
-                        result = crypto_instance.ctr_encrypt(input_data, key)
-                    else:
-                        print(f"Error: Unsupported AES mode: {mode}")
-                        return
-                
-                elif function_name == "blowfish":  # Blowfish encryption
-                    mode = getattr(args, 'mode', defaults.get('blowfish_mode', 'cbc')).lower()
-                    if mode == "cbc":
-                        result = crypto_instance.cbc_encrypt(input_data, key)
-                    elif mode == "cfb":
-                        result = crypto_instance.cfb_encrypt(input_data, key)
-                    elif mode == "ctr":
-                        result = crypto_instance.ctr_encrypt(input_data, key)
-                    else:
-                        print(f"Error: Unsupported Blowfish mode: {mode}")
-                        return
-                
-                else:  # ChaCha20 encryption
-                    nonce = None
-                    if getattr(args, 'nonce', None):  # Use provided nonce
-                        nonce = _parse_hex_bytes(args.nonce, 16)
-                    result = crypto_instance.encrypt(input_data, key, nonce)
-                
-                _write_output(result, getattr(args, 'output', None))  # Write output
-                
-            elif operation == "decrypt":
-                # For plaintext decryption, input is hex string that needs parsing
-                if args.plaintext:  # If plaintext mode, input is hex string
-                    try:
-                        input_data = bytes.fromhex(args.input) if args.input else None
-                    except ValueError:
-                        print("Error: Invalid hex string for plaintext decryption")
-                        return
-                else:  # File mode, read file
-                    input_data = _read_input(args)
-                if not input_data:
-                    print("Error: --input required")
-                    return
-                
-                if function_name == "aes":  # AES decryption
+
+                # Algorithm-specific handling
+                if function_name == "aes":
                     mode = getattr(args, 'mode', defaults.get('aes_mode', 'cbc')).lower()
-                    if mode == "cbc":
-                        result = crypto_instance.cbc_decrypt(input_data, key)
-                    elif mode == "cfb":
-                        result = crypto_instance.cfb_decrypt(input_data, key)
-                    elif mode == "ctr":
-                        result = crypto_instance.ctr_decrypt(input_data, key)
-                    else:
-                        print(f"Error: Unsupported AES mode: {mode}")
-                        return
-                
-                elif function_name == "blowfish":  # Blowfish decryption
+                    result = getattr(crypto_instance, f"{mode}_encrypt")(input_data, key)
+
+                elif function_name == "blowfish":
                     mode = getattr(args, 'mode', defaults.get('blowfish_mode', 'cbc')).lower()
-                    if mode == "cbc":
-                        result = crypto_instance.cbc_decrypt(input_data, key)
-                    elif mode == "cfb":
-                        result = crypto_instance.cfb_decrypt(input_data, key)
-                    elif mode == "ctr":
-                        result = crypto_instance.ctr_decrypt(input_data, key)
-                    else:
-                        print(f"Error: Unsupported Blowfish mode: {mode}")
-                        return
-                
-                else:  # ChaCha20 decryption
+                    result = getattr(crypto_instance, f"{mode}_encrypt")(input_data, key)
+
+                else:  # ChaCha20
+                    nonce = _parse_hex_bytes(args.nonce, 16) if getattr(args, 'nonce', None) else None
+                    result = crypto_instance.encrypt(input_data, key, nonce)
+
+                _write_output(result, getattr(args, 'output', None))
+
+            # ---------- DECRYPT ----------
+            elif operation == "decrypt":
+                if args.plaintext:
+                    input_data = bytes.fromhex(args.input)
+                else:
+                    input_data = _read_input(args)
+
+                if function_name == "aes":
+                    mode = getattr(args, 'mode', defaults.get('aes_mode', 'cbc')).lower()
+                    result = getattr(crypto_instance, f"{mode}_decrypt")(input_data, key)
+
+                elif function_name == "blowfish":
+                    mode = getattr(args, 'mode', defaults.get('blowfish_mode', 'cbc')).lower()
+                    result = getattr(crypto_instance, f"{mode}_decrypt")(input_data, key)
+
+                else:  # ChaCha20
                     result = crypto_instance.decrypt(input_data, key)
-                
-                if args.plaintext:  # If plaintext mode, decode to string
-                    _write_output(result.decode('utf-8', errors='replace'), getattr(args, 'output', None), is_text=True)
-                else:  # Otherwise output as bytes (hex or binary)
+
+                if args.plaintext:
+                    _write_output(result.decode('utf-8', errors='replace'),
+                                  getattr(args, 'output', None), is_text=True)
+                else:
                     _write_output(result, getattr(args, 'output', None))
-            
+
             else:
-                print(f"Error: Unsupported operation '{operation}' for {function_name}")
-        
-        # Handle hashing (SHA2, SHA3, Blake2)
+                print(f"Error: Unsupported operation '{operation}'")
+
+        # =========================
+        # Hashing
+        # =========================
         elif function_name in ("sha200", "sha300", "blake2"):
             if operation != "hash":
-                print(f"Error: Only 'hash' operation supported for {function_name}")
+                print("Error: Only 'hash' operation supported")
                 return
-            
-            hash_type = getattr(args, 'hash_type', None)
-            if not hash_type:
-                print("Error: --hash-type required for hashing operations")
-                return
-            
-            input_data = _read_input(args)  # Read input data
-            if not input_data:
-                print("Error: --input required")
-                return
-            
-            output_format = getattr(args, 'output_format', 'hex')  # Get output format
-            
-            if function_name == "sha200":  # SHA2 hashing
-                if output_format == "hex":
-                    result = crypto_instance.hash_bytes_hex(input_data, hash_type)
-                else:
-                    result = crypto_instance.hash_bytes(input_data, hash_type)
-            
-            elif function_name == "sha300":  # SHA3 hashing
-                if output_format == "hex":
-                    result = crypto_instance.hash_bytes_hex(input_data, hash_type)
-                else:
-                    result = crypto_instance.hash_bytes(input_data, hash_type)
-            
-            else:  # Blake2 hashing
-                if hash_type == "blake2s":
-                    if output_format == "hex":
-                        result = crypto_instance.blake2s_hash_hex(input_data)
-                    else:
-                        result = crypto_instance.blake2s_hash_bytes(input_data)
-                elif hash_type == "blake2b":
-                    if output_format == "hex":
-                        result = crypto_instance.blake2b_hash_hex(input_data)
-                    else:
-                        result = crypto_instance.blake2b_hash_bytes(input_data)
-                else:
-                    print(f"Error: Unsupported Blake2 hash type: {hash_type}")
-                    return
-            
-            if output_format == "hex":
-                _write_output(result, getattr(args, 'output', None), is_text=True)
+
+            input_data = _read_input(args)
+            output_format = getattr(args, 'output_format', 'hex')
+
+            if function_name == "blake2":
+                result = (crypto_instance.blake2s_hash_hex(input_data)
+                          if args.hash_type == "blake2s"
+                          else crypto_instance.blake2b_hash_hex(input_data))
             else:
-                _write_output(result, getattr(args, 'output', None))
-        
-        # Handle RSA encryption/decryption
+                result = crypto_instance.hash_bytes_hex(input_data, args.hash_type)
+
+            _write_output(result, getattr(args, 'output', None), is_text=True)
+
+        # =========================
+        # RSA Encryption
+        # =========================
         elif function_name == "rsa":
-            key_path = getattr(args, 'key', None)  # Get key file path
-            if not key_path:
-                print("Error: --key required (PEM file path)")
-                return
-            
+            key_path = args.key
+            input_data = _read_input(args)
+
             if operation == "encrypt":
-                input_data = _read_input(args)  # Read input data
-                if not input_data:
-                    print("Error: --input required")
-                    return
-                
-                public_key = crypto_instance.load_public_key(key_path)  # Load public key
-                result = crypto_instance.encrypt_bytes(public_key, input_data)  # Encrypt
-                _write_output(result, getattr(args, 'output', None))  # Write output
-            
-            elif operation == "decrypt":
-                input_data = _read_input(args)  # Read input data
-                if not input_data:
-                    print("Error: --input required")
-                    return
-                
-                private_key = crypto_instance.load_private_key(key_path)  # Load private key
-                result = crypto_instance.decrypt_bytes(private_key, input_data)  # Decrypt
-                _write_output(result, getattr(args, 'output', None))  # Write output
-            
+                public_key = crypto_instance.load_public_key(key_path)
+                result = crypto_instance.encrypt_bytes(public_key, input_data)
             else:
-                print(f"Error: Unsupported operation '{operation}' for RSA")
-        
-        # Handle digital signatures (RSA, ECDSA)
+                private_key = crypto_instance.load_private_key(key_path)
+                result = crypto_instance.decrypt_bytes(private_key, input_data)
+
+            _write_output(result, getattr(args, 'output', None))
+
+        # =========================
+        # Digital Signatures
+        # =========================
         elif function_name in ("rsa_signature", "ecdsa"):
-            key_path = getattr(args, 'key', None)  # Get key file path
-            if not key_path:
-                print("Error: --key required (PEM file path)")
-                return
-            
             if operation == "sign":
-                input_path = getattr(args, 'input', None)  # Get input file
-                if not input_path:
-                    print("Error: --input required")
-                    return
-                
-                output_path = getattr(args, 'output', None)  # Get signature output path
-                if not output_path:
-                    print("Error: --output required for signing")
-                    return
-                
-                private_key = crypto_instance.load_private_key(key_path)  # Load private key
-                
-                if function_name == "rsa_signature":
-                    crypto_instance.sign_file(private_key, input_path, output_path)  # Sign file
-                else:  # ECDSA
-                    crypto_instance.sign_file(input_path, output_path, private_key)  # Sign file (different parameter order)
-                
-                print(f"Signature saved to: {output_path}")
-            
+                private_key = crypto_instance.load_private_key(args.key)
+                crypto_instance.sign_file(private_key, args.input, args.output)
+                print(f"Signature saved to: {args.output}")
+
             elif operation == "verify":
-                input_path = getattr(args, 'input', None)  # Get input file
-                if not input_path:
-                    print("Error: --input required")
-                    return
-                
-                signature_path = getattr(args, 'signature', None)  # Get signature file
-                if not signature_path:
-                    print("Error: --signature required for verification")
-                    return
-                
-                # Load key (can be public or private - derive public if needed)
-                try:
-                    public_key = crypto_instance.load_public_key(key_path)  # Try to load as public key
-                except ValueError:
-                    # If that fails, try loading as private key and derive public
-                    private_key = crypto_instance.load_private_key(key_path)
-                    public_key = private_key.public_key()
-                
-                if function_name == "rsa_signature":
-                    try:
-                        crypto_instance.verify_file(public_key, input_path, signature_path)  # Verify signature
-                        print("✓ Signature verified successfully")
-                    except InvalidSignature:
-                        print("✗ Signature verification failed")
-                else:  # ECDSA
-                    is_valid = crypto_instance.verify_file(input_path, signature_path, public_key)  # Verify signature
-                    if is_valid:
-                        print("✓ Signature verified successfully")
-                    else:
-                        print("✗ Signature verification failed")
-            
-            else:
-                print(f"Error: Unsupported operation '{operation}' for {function_name}")
-        
-        else:
-            print(f"Error: Operation handling not implemented for {function_name}")
-    
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-    except ValueError as e:
-        print(f"Error: {e}")
-    except InvalidSignature:
-        print("Error: Invalid signature")
+                public_key = crypto_instance.load_public_key(args.key)
+                crypto_instance.verify_file(public_key, args.input, args.signature)
+                print("✓ Signature verified")
+
     except Exception as e:
         print(f"Error: {e}")
