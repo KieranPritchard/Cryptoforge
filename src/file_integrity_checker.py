@@ -1,28 +1,42 @@
 import hashlib
 import os
 
-class file_integrity_checker:
+
+class FileIntegrityChecker:
     def __init__(self):
         pass
 
-    def select_algorithm(algorithm):
-        if algorithm == "sha224":
-            return hashlib.sha224()
-        elif algorithm == "sha256":
-            return hashlib.sha256()
-        elif algorithm == "sha384":
-            return hashlib.sha384()
-        elif algorithm == "sha512":
-            return hashlib.sha512()
-        elif algorithm == "sha3_224":
-            return hashlib.sha3_224()
-        elif algorithm == "sha3_256":
-            return hashlib.sha3_256()
-        elif algorithm == "sha3_384":
-            return hashlib.sha3_384()
-        elif algorithm == "sha3_512":
-            return hashlib.sha3_512()
-        elif algorithm == "blake2b":
-            return hashlib.blake2b()
-        elif algorithm == "blake2s":
-            return hashlib.blake2s()
+    def select_algorithm(self, algorithm):
+        algorithms = {
+            "sha224": hashlib.sha224,
+            "sha256": hashlib.sha256,
+            "sha384": hashlib.sha384,
+            "sha512": hashlib.sha512,
+            "sha3_224": hashlib.sha3_224,
+            "sha3_256": hashlib.sha3_256,
+            "sha3_384": hashlib.sha3_384,
+            "sha3_512": hashlib.sha3_512,
+            "blake2b": hashlib.blake2b,
+            "blake2s": hashlib.blake2s,
+        }
+
+        if algorithm not in algorithms:
+            raise ValueError(f"Unsupported hash algorithm: {algorithm}")
+
+        return algorithms[algorithm]()
+
+    def hash_file(self, file_path, algorithm):
+        if not os.path.isfile(file_path):
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        hash_object = self.select_algorithm(algorithm)
+
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_object.update(chunk)
+
+        return hash_object.hexdigest()
+
+    def verify_file(self, file_path, expected_hash, algorithm):
+        calculated_hash = self.hash_file(file_path, algorithm)
+        return calculated_hash.lower() == expected_hash.lower()
