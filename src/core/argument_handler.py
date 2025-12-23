@@ -54,6 +54,12 @@ def build_parser():
         default="hex"                                     # Format for hash display (defaulting to readable hex)
     )
 
+    # ---- TLS / Networking ----
+    parser.add_argument("--host", type=str, default="127.0.0.1") # Target IP address or hostname for TLS connections
+    parser.add_argument("--port", type=int, default=4433)        # Target port number for the TLS server or client
+    parser.add_argument("--cert", type=str)                      # Path to the X.509 certificate file (.pem)
+    parser.add_argument("--ca-file", type=str)                   # Path to a Trusted CA file to verify remote certificates
+
     # ---- Flags ----
     parser.add_argument("--plaintext", action="store_true") # Flag to treat input as raw text instead of a file path
     
