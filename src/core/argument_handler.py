@@ -1,12 +1,13 @@
 import argparse
 
 def build_parser():
-    parser = argparse.ArgumentParser(
+    """Build and configure the command-line argument parser"""
+    parser = argparse.ArgumentParser(  # Create argument parser instance
         description="Personal cryptography utility"
     )
 
     # Main function selector
-    parser.add_argument("function", help="Primary function to execute")
+    parser.add_argument("function", help="Primary function to execute")  # Required positional argument for algorithm/function
 
     # ---- Key management ----
     parser.add_argument("--save-key", type=str)
@@ -55,5 +56,8 @@ def build_parser():
 
     # ---- Flags ----
     parser.add_argument("--plaintext", action="store_true")
+    
+    # ---- File Integrity ----
+    parser.add_argument("--expected-hash", type=str, help="Expected hash for verification")  # Expected hash value for file integrity verification
 
-    return parser
+    return parser  # Return configured parser

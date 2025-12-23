@@ -1,12 +1,14 @@
-# Crytoforge
+# Cryptoforge
 
 ## Project Description
 
-This project is a comprehensive cryptography command line utility designed to provide a suite of cryptographic algorithms and tools for secure data processing and management. The utility includes implementations of various encryption, decryption, hashing, and digital signature algorithms, making it a versatile toolkit for beggineers.
+This project is a comprehensive cryptography command line utility designed to provide a suite of cryptographic algorithms and tools for secure data processing and management. The utility includes implementations of various encryption, decryption, hashing, and digital signature algorithms, making it a versatile toolkit for beginners.
+
+**Note:** In addition to being a CLI tool, Cryptoforge also functions as a Python library. All cryptographic classes and functions can be imported and used directly in Python scripts, making it easy to integrate cryptographic operations into your own applications.
 
 ### Objective
 
-To create a simple to use cryptography tool; Which I can then use to in encryption, hash, and use digital signatures and learn about how cryptography works and is used. I made this to provide a simpler way of using cryptography with simpler commands compared to OpenSSL, it was also made to automate part of the process Openssl makes you perform. By working on this project the aim is to learn about cryptography further and also slowly build a tool which myself and possibly others can use in place of OpenSSL.
+To create a simple to use cryptography tool; Which I can then use to encrypt, hash, and use digital signatures and learn about how cryptography works and is used. I made this to provide a simpler way of using cryptography with simpler commands compared to OpenSSL, it was also made to automate part of the process Openssl makes you perform. By working on this project the aim is to learn about cryptography further and also slowly build a tool which myself and possibly others can use in place of OpenSSL.
 
 ### Technology and Tools Used
 - Python 3
@@ -17,57 +19,71 @@ To create a simple to use cryptography tool; Which I can then use to in encrypti
 
 ### Key Management Commands
 
-1. **Save Key:** `keymgmt --save-key <key_data> --new-key-name <name> --key-type <type>`
-2. **Load Key:** `keymgmt --load-key <key_name>`
-3. **List Keys:** `keymgmt --list-keys`
-4. **Rename Key:** `keymgmt --rename-key --old-name <old_name> --new-name <new_name>`
-5. **Delete Key:** `keymgmt --delete-key <key_name>`
+Use the `key` or `keymgmt` function for all key-related operations:
+
+1. **Save Key:** `python cryptoforge.py key --save-key <key_data> --new-key-name <name> --key-type <type>`
+2. **Load Key:** `python cryptoforge.py key --load-key <key_name>`
+3. **List Keys:** `python cryptoforge.py key --list-keys`
+4. **Rename Key:** `python cryptoforge.py key --rename-key --old-name <old_name> --new-name <new_name>`
+5. **Delete Key:** `python cryptoforge.py key --delete-key <key_name>`
 
 ### Key Creation Commands
-1. **Create AES Key:** `--aes-key [--bit-size <size>]`
-2. **Create Blowfish Key:** `--blowfish-key [--bit-size <size>]`
-3. **Create ChaCha20 Key:** `--chacha20-key [--bit-size <size>]`
-4. **Create RSA Private Key:** `--rsa-private-key`
-5. **Create RSA Public Key:** `--rsa-public-key --key <private_key_file>`
-6. **Create ECC Private Key:** `--ecc-private-key`
-7. **Create ECC Public Key:** `--ecc-public-key --key <private_key_file>`
-8. **Create ECDSA Private Key:** `--ecdsa-private-key`
-9. **Create ECDSA Public Key:** `--ecdsa-public-key --key <private_key_file>`
+
+Use the `key` or `keymgmt` function for key generation:
+
+1. **Create AES Key:** `python cryptoforge.py key --aes-key [--bit-size <size>]`
+2. **Create Blowfish Key:** `python cryptoforge.py key --blowfish-key [--bit-size <size>]`
+3. **Create ChaCha20 Key:** `python cryptoforge.py key --chacha20-key`
+4. **Create RSA Private Key:** `python cryptoforge.py key --rsa-private-key [--bit-size <size>]`
+5. **Create RSA Public Key:** `python cryptoforge.py key --rsa-public-key --key <private_key_file>`
+6. **Create ECC Private Key:** `python cryptoforge.py key --ecc-private-key`
+7. **Create ECC Public Key:** `python cryptoforge.py key --ecc-public-key --key <private_key_file>`
+8. **Create ECDSA Private Key:** `python cryptoforge.py key --ecdsa-private-key`
+9. **Create ECDSA Public Key:** `python cryptoforge.py key --ecdsa-public-key --key <private_key_file>`
+
+**Note:** Key management and generation commands can also work with any function name (legacy support), but using `key` or `keymgmt` is recommended for clarity.
 
 ### Cryptographic Operation Commands
 
 #### AES Operations
-1. **AES Encrypt:** `aes --operation encrypt --input <file> --key <key> --iv <iv> [--output <file>]`
-2. **AES Decrypt:** `aes --operation decrypt --input <file> --key <key> --iv <iv> [--output <file>]`
-3. **AES Encrypt Plaintext:** `aes --operation encrypt --plaintext --input <string> --key <key> --iv <iv> [--output <file>]`
-4. **AES Decrypt Plaintext:** `aes --operation decrypt --plaintext --input <hex_string> --key <key> --iv <iv> [--output <file>]`
+1. **AES Encrypt:** `python cryptoforge.py aes --operation encrypt --input <file> --key <key> --iv <iv> [--output <file>]`
+2. **AES Decrypt:** `python cryptoforge.py aes --operation decrypt --input <file> --key <key> --iv <iv> [--output <file>]`
+3. **AES Encrypt Plaintext:** `python cryptoforge.py aes --operation encrypt --plaintext --input <string> --key <key> --iv <iv> [--output <file>]`
+4. **AES Decrypt Plaintext:** `python cryptoforge.py aes --operation decrypt --plaintext --input <hex_string> --key <key> --iv <iv> [--output <file>]`
 
 #### Blowfish Operations
-1. **Blowfish Encrypt:** `blowfish --operation encrypt --input <file> --key <key> [--output <file>]`
-2. **Blowfish Decrypt:** `blowfish --operation decrypt --input <file> --key <key> [--output <file>]`
-3. **Blowfish Encrypt Plaintext:** `blowfish --operation encrypt --plaintext --input <string> --key <key> [--output <file>]`
-4. **Blowfish Decrypt Plaintext:** `blowfish --operation decrypt --plaintext --input <hex_string> --key <key> [--output <file>]`
+1. **Blowfish Encrypt:** `python cryptoforge.py blowfish --operation encrypt --input <file> --key <key> [--output <file>]`
+2. **Blowfish Decrypt:** `python cryptoforge.py blowfish --operation decrypt --input <file> --key <key> [--output <file>]`
+3. **Blowfish Encrypt Plaintext:** `python cryptoforge.py blowfish --operation encrypt --plaintext --input <string> --key <key> [--output <file>]`
+4. **Blowfish Decrypt Plaintext:** `python cryptoforge.py blowfish --operation decrypt --plaintext --input <hex_string> --key <key> [--output <file>]`
 
 #### ChaCha20 Operations
-1. **ChaCha20 Encrypt:** `chacha20 --operation encrypt --input <file> --key <key> --nonce <nonce> [--output <file>]`
-2. **ChaCha20 Decrypt:** `chacha20 --operation decrypt --input <file> --key <key> [--output <file>]`
-3. **ChaCha20 Encrypt Plaintext:** `chacha20 --operation encrypt --plaintext --input <string> --key <key> --nonce <nonce> [--output <file>]`
-4. **ChaCha20 Decrypt Plaintext:** `chacha20 --operation decrypt --plaintext --input <hex_string> --key <key> [--output <file>]`
+1. **ChaCha20 Encrypt:** `python cryptoforge.py chacha20 --operation encrypt --input <file> --key <key> --nonce <nonce> [--output <file>]`
+2. **ChaCha20 Decrypt:** `python cryptoforge.py chacha20 --operation decrypt --input <file> --key <key> [--output <file>]`
+3. **ChaCha20 Encrypt Plaintext:** `python cryptoforge.py chacha20 --operation encrypt --plaintext --input <string> --key <key> --nonce <nonce> [--output <file>]`
+4. **ChaCha20 Decrypt Plaintext:** `python cryptoforge.py chacha20 --operation decrypt --plaintext --input <hex_string> --key <key> [--output <file>]`
 
 #### Hash Operations (SHA-2, SHA-3, Blake2)
-1. **SHA-2 Hash:** `sha200 --input <file_or_text> --hash-type <sha224|sha256|sha384|sha512> [--output <file>] [--output-format <hex|bytes>]`
-2. **SHA-3 Hash:** `sha300 --input <file_or_text> --hash-type <sha3_224|sha3_256|sha3_384|sha3_512> [--output <file>] [--output-format <hex|bytes>]`
-3. **Blake2 Hash:** `blake2 --input <file_or_text> --hash-type <blake2s|blake2b> [--output <file>] [--output-format <hex|bytes>]`
+1. **SHA-2 Hash:** `python cryptoforge.py sha200 --input <file_or_text> --hash-type <sha224|sha256|sha384|sha512> [--output <file>] [--output-format <hex|bytes>]`
+2. **SHA-3 Hash:** `python cryptoforge.py sha300 --input <file_or_text> --hash-type <sha3_224|sha3_256|sha3_384|sha3_512> [--output <file>] [--output-format <hex|bytes>]`
+3. **Blake2 Hash:** `python cryptoforge.py blake2 --input <file_or_text> --hash-type <blake2s|blake2b> [--output <file>] [--output-format <hex|bytes>]`
+
+#### File Integrity Operations
+1. **Compute File Hash:** `python cryptoforge.py file_integrity --input <file> --hash-type <algorithm> [--output <file>]`
+   - Supported algorithms: `sha224`, `sha256`, `sha384`, `sha512`, `sha3_224`, `sha3_256`, `sha3_384`, `sha3_512`, `blake2b`, `blake2s`
+2. **Verify File Integrity:** `python cryptoforge.py integrity --input <file> --hash-type <algorithm> --expected-hash <hash_value>`
+   - Compares the computed hash of the file against the expected hash value
 
 #### Digital Signature Operations
-1. **ECDSA Sign:** `ecdsa --operation sign --input <message> --key <private_key> --output <signature_file>`
-2. **ECDSA Verify:** `ecdsa --operation verify --input <message> --key <public_key_or_private_key> --signature <signature_file>`
-3. **RSA Sign:** `rsa_signature --operation sign --input <message> --key <private_key> --output <signature_file>`
-4. **RSA Verify:** `rsa_signature --operation verify --input <message> --key <public_key_or_private_key> --signature <signature_file>`
+1. **ECDSA Sign:** `python cryptoforge.py ecdsa --operation sign --input <message> --key <private_key> --output <signature_file>`
+2. **ECDSA Verify:** `python cryptoforge.py ecdsa --operation verify --input <message> --key <public_key_or_private_key> --signature <signature_file>`
+3. **RSA Sign:** `python cryptoforge.py rsa_signature --operation sign --input <message> --key <private_key> --output <signature_file>`
+4. **RSA Verify:** `python cryptoforge.py rsa_signature --operation verify --input <message> --key <public_key_or_private_key> --signature <signature_file>`
 
 **Note:** For verification, you can provide either a public key or a private key PEM file (the public key will be derived automatically if a private key is provided).
 
 ### Main Function Categories
+- `key` / `keymgmt` - Key management and generation operations
 - `aes` - AES encryption/decryption
 - `blowfish` - Blowfish encryption/decryption
 - `chacha20` - ChaCha20 encryption/decryption
@@ -77,6 +93,7 @@ To create a simple to use cryptography tool; Which I can then use to in encrypti
 - `sha300` - SHA-3 hashing
 - `ecdsa` - ECDSA digital signatures
 - `rsa_signature` - RSA digital signatures
+- `file_integrity` / `integrity` - File integrity checking (hash computation and verification)
 
 ### Common Arguments
 - `--operation`: encrypt, decrypt, hash, sign, verify
@@ -90,6 +107,7 @@ To create a simple to use cryptography tool; Which I can then use to in encrypti
 - `--output-format`: hex or bytes (for hashes)
 - `--bit-size`: Key size in bits (default: 256)
 - `--plaintext`: Treat `--input` as a plaintext string instead of a file for encryption/decryption operations. When set, the program will encrypt/decrypt the string directly and print the result (or save to `--output` if specified). Use this for direct string encryption/decryption.
+- `--expected-hash`: Expected hash value for file integrity verification (used with `file_integrity`/`integrity` function)
 
 ## Key Usage Behavior
 
@@ -101,28 +119,112 @@ For all cryptographic operations (encryption, decryption, signing, verification,
 
 ### Example Usage
 
-1. **Load a key:**
+1. **List all saved keys:**
    ```sh
-   python Cryptoforge.py aes keymgmt --load-key my_aes_key.key
+   python cryptoforge.py key --list-keys
    ```
-2. **Encrypt a file using the loaded key (no --key needed):**
+
+2. **Generate and save an AES key:**
    ```sh
-   python Cryptoforge.py aes --operation encrypt --input plaintext.txt --iv <iv-hex>
+   python cryptoforge.py key --aes-key --bit-size 256
    ```
-3. **Or, specify a key directly:**
+
+3. **Load a key:**
    ```sh
-   python Cryptoforge.py aes --operation encrypt --input plaintext.txt --key <key-hex> --iv <iv-hex>
+   python cryptoforge.py key --load-key my_aes_key.key
    ```
-4. **Sign a file and output the signature:**
+
+4. **Encrypt a file using the loaded key (no --key needed):**
    ```sh
-   python Cryptoforge.py rsa_signature --operation sign --input message.txt --key my_rsa_private.pem --output message.sig
+   python cryptoforge.py aes --operation encrypt --input plaintext.txt --iv <iv-hex>
    ```
-5. **Verify a signature:**
+
+5. **Or, specify a key directly:**
    ```sh
-   python Cryptoforge.py rsa_signature --operation verify --input message.txt --key my_rsa_private.pem --signature message.sig
+   python cryptoforge.py aes --operation encrypt --input plaintext.txt --key <key-hex> --iv <iv-hex>
+   ```
+
+6. **Sign a file and output the signature:**
+   ```sh
+   python cryptoforge.py rsa_signature --operation sign --input message.txt --key my_rsa_private.pem --output message.sig
+   ```
+
+7. **Verify a signature:**
+   ```sh
+   python cryptoforge.py rsa_signature --operation verify --input message.txt --key my_rsa_private.pem --signature message.sig
+   ```
+
+8. **Compute file hash:**
+   ```sh
+   python cryptoforge.py file_integrity --input file.txt --hash-type sha256
+   ```
+
+9. **Verify file integrity:**
+   ```sh
+   python cryptoforge.py integrity --input file.txt --hash-type sha256 --expected-hash <expected_hash_value>
    ```
 
 **Note:** The fallback to the loaded key applies to all supported cryptographic functions, including AES, Blowfish, ChaCha20, ECDSA, and RSA operations.
+
+## Using as a Python Library
+
+Cryptoforge can be imported and used as a library in your Python projects. All cryptographic classes are designed to be stateless and reusable.
+
+### Example Library Usage
+
+```python
+from src.symmetric.aes_cipher import AES
+from src.hashing.sha2_hash import SHA2
+from src.core.key_management import KeyManager
+
+# Initialize crypto instances
+aes = AES()
+sha2 = SHA2()
+key_manager = KeyManager("./keys")
+
+# Generate a key
+key = key_manager.create_aes_key(256)
+
+# Encrypt data
+plaintext = b"Hello, World!"
+ciphertext = aes.cbc_encrypt(plaintext, key)
+
+# Decrypt data
+decrypted = aes.cbc_decrypt(ciphertext, key)
+
+# Hash data
+hash_value = sha2.hash_bytes_hex(plaintext, "sha256")
+print(f"SHA256: {hash_value}")
+
+# Hash a file
+file_hash = sha2.hash_file_hex("document.txt", "sha256")
+print(f"File SHA256: {file_hash}")
+```
+
+### Available Classes for Import
+
+**Symmetric Ciphers:**
+- `src.symmetric.aes_cipher.AES`
+- `src.symmetric.blowfish_cipher.Blowfish`
+- `src.symmetric.chacha20_cipher.ChaCha20`
+
+**Hashing:**
+- `src.hashing.sha2_hash.SHA2`
+- `src.hashing.sha3_hash.SHA3`
+- `src.hashing.blake2_hash.Blake2`
+- `src.hashing.file_integrity.FileIntegrityChecker`
+
+**Asymmetric Crypto:**
+- `src.asymmetric.rsa_cipher.RSA`
+- `src.asymmetric.rsa_signatures.RSADigitalSignatures`
+- `src.asymmetric.ecdsa_signatures.ECDSA`
+
+**Key Management:**
+- `src.core.key_management.KeyManager`
+- `src.core.key_management.handle_key_management`
+- `src.core.key_management.handle_key_creation`
+
+All classes follow a consistent interface pattern and can be instantiated and used independently without the CLI.
 
 ## Troubleshooting
 

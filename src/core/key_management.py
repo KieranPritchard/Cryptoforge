@@ -161,3 +161,118 @@ class KeyManager:
         )
 
         return public_key, pem
+
+
+# =========================
+# KEY MANAGEMENT HANDLERS
+# =========================
+
+def handle_key_management(args, loaded_key, key_manager):
+    """Handle key management operations (save, load, list, rename, delete)"""
+    if args.save_key:  # Handle save key operation
+        if not args.new_key_name or not args.key_type:  # Validate required arguments
+            print("Error: --save-key requires --new-key-name and --key-type")
+            return loaded_key  # Return unchanged loaded_key on error
+        path = key_manager.save_key(args.new_key_name, args.save_key, args.key_type)  # Save key to disk
+        print(f"Key saved to: {path}")
+        return loaded_key  # Return unchanged loaded_key (key is saved, not loaded)
+    
+    if args.load_key:  # Handle load key operation
+        key_path = key_manager.load_key_path(args.load_key)  # Get path to key file
+        if key_path:  # If key file exists
+            with open(key_path, "r") as f:  # Open key file for reading
+                key_data = f.read()  # Read key data from file
+            print(f"Key loaded from: {key_path}")
+            return key_data  # Return loaded key data
+        else:  # Key file not found
+            print(f"Error: Key '{args.load_key}' not found")
+            return loaded_key  # Return unchanged loaded_key on error
+    
+    if args.list_keys:  # Handle list keys operation
+        keys = key_manager.list_keys()  # Get list of all keys
+        if keys:  # If keys exist
+            print("Available keys:")
+            for key in keys:  # Iterate through keys
+                print(f"  - {key}")  # Print each key name
+        else:  # No keys found
+            print("No keys found")
+        return loaded_key  # Return unchanged loaded_key
+    
+    if args.rename_key:  # Handle rename key operation
+        if not args.old_name or not args.new_name:  # Validate required arguments
+            print("Error: --rename-key requires --old-name and --new-name")
+            return loaded_key  # Return unchanged loaded_key on error
+        key_manager.rename_key(args.old_name, args.new_name)  # Rename key file
+        print(f"Key renamed from '{args.old_name}' to '{args.new_name}'")
+        return loaded_key  # Return unchanged loaded_key
+    
+    if args.delete_key:  # Handle delete key operation
+        key_manager.delete_key(args.delete_key)  # Delete key file
+        print(f"Key '{args.delete_key}' deleted")
+        return loaded_key  # Return unchanged loaded_key
+    
+    return loaded_key  # Return unchanged loaded_key if no operation matched
+
+
+def handle_key_creation(args, key_manager):
+    """Handle key generation operations"""
+    bit_size = args.bit_size or 256  # Default to 256 bits if not specified
+    
+    if args.aes_key:  # Handle AES key generation
+        key = key_manager.create_aes_key(bit_size)  # Generate AES key
+        key_hex = key.hex()  # Convert bytes to hexadecimal string
+        print(f"AES {bit_size}-bit key (hex): {key_hex}")
+        return  # Exit after generating key
+    
+    if args.blowfish_key:  # Handle Blowfish key generation
+        # Blowfish supports 32-448 bits, but we'll use bytes
+        key_bytes = (bit_size // 8)  # Convert bits to bytes
+        if key_bytes < 4:  # Enforce minimum key size
+            key_bytes = 4
+        elif key_bytes > 56:  # Enforce maximum key size
+            key_bytes = 56
+        key = os.urandom(key_bytes)  # Generate random key bytes
+        key_hex = key.hex()  # Convert bytes to hexadecimal string
+        print(f"Blowfish {len(key)*8}-bit key (hex): {key_hex}")
+        return  # Exit after generating key
+    
+    if args.chacha20_key:  # Handle ChaCha20 key generation
+        key = key_manager.create_chacha20_key()  # Generate ChaCha20 key (always 256 bits)
+        key_hex = key.hex()  # Convert bytes to hexadecimal string
+        print(f"ChaCha20 256-bit key (hex): {key_hex}")
+        return  # Exit after generating key
+    
+    if args.rsa_private_key:  # Handle RSA private key generation
+        key_size = args.bit_size or 2048  # Default to 2048 bits if not specified
+        private_key, pem = key_manager.create_rsa_private_key(key_size)  # Generate RSA key pair
+        key_hex = pem.decode()  # Decode PEM bytes to string
+        print(f"RSA {key_size}-bit private key (PEM):\n{key_hex}")
+        return  # Exit after generating key
+    
+    if args.rsa_public_key:  # Handle RSA public key extraction
+        if not args.key:  # Validate private key file is provided
+            print("Error: --rsa-public-key requires --key (private key file)")
+            return  # Exit if key file missing
+        with open(args.key, "rb") as f:  # Open private key file
+            private_key = serialization.load_pem_private_key(f.read(), password=None)  # Load private key from PEM
+        public_key, pem = key_manager.create_rsa_public_key(private_key)  # Extract public key from private key
+        key_hex = pem.decode()  # Decode PEM bytes to string
+        print(f"RSA public key (PEM):\n{key_hex}")
+        return  # Exit after generating key
+    
+    if args.ecc_private_key or args.ecdsa_private_key:  # Handle ECC/ECDSA private key generation
+        private_key, pem = key_manager.create_ecc_private_key()  # Generate ECC key pair
+        key_hex = pem.decode()  # Decode PEM bytes to string
+        print(f"ECC/ECDSA private key (PEM):\n{key_hex}")
+        return  # Exit after generating key
+    
+    if args.ecc_public_key or args.ecdsa_public_key:  # Handle ECC/ECDSA public key extraction
+        if not args.key:  # Validate private key file is provided
+            print("Error: --ecc-public-key/--ecdsa-public-key requires --key (private key file)")
+            return  # Exit if key file missing
+        with open(args.key, "rb") as f:  # Open private key file
+            private_key = serialization.load_pem_private_key(f.read(), password=None)  # Load private key from PEM
+        public_key, pem = key_manager.create_ecc_public_key(private_key)  # Extract public key from private key
+        key_hex = pem.decode()  # Decode PEM bytes to string
+        print(f"ECC/ECDSA public key (PEM):\n{key_hex}")
+        return  # Exit after generating key
